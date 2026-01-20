@@ -1,0 +1,29 @@
+﻿﻿<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500">
+	<!-- Background Circle -->
+	<circle cx="250" cy="250" r="200" fill="#FF6B6B" opacity="0.1"/>
+
+	<!-- Person 1 -->
+	<circle cx="200" cy="180" r="35" fill="#6C63FF"/>
+	<path d="M 165 230 Q 200 210 235 230 L 235 300 L 165 300 Z" fill="#6C63FF"/>
+
+	<!-- Person 2 -->
+	<circle cx="300" cy="200" r="40" fill="#FF6B6B"/>
+	<path d="M 260 250 Q 300 225 340 250 L 340 330 L 260 330 Z" fill="#FF6B6B"/>
+
+	<!-- Document/Form -->
+	<rect x="150" y="100" width="200" height="250" rx="15" fill="#fff" stroke="#333" stroke-width="3"/>
+
+	<!-- Form Lines -->
+	<rect x="170" y="130" width="160" height="8" rx="4" fill="#E0E0E0"/>
+	<rect x="170" y="150" width="140" height="8" rx="4" fill="#E0E0E0"/>
+	<rect x="170" y="170" width="160" height="8" rx="4" fill="#E0E0E0"/>
+	<rect x="170" y="200" width="120" height="8" rx="4" fill="#E0E0E0"/>
+	<rect x="170" y="220" width="160" height="8" rx="4" fill="#E0E0E0"/>
+	<rect x="170" y="240" width="100" height="8" rx="4" fill="#E0E0E0"/>
+
+	<!-- Checkboxes -->
+	<rect x="170" y="280" width="20" height="20" rx="3" fill="#fff" stroke="#4CAF50" stroke-width="2"/>
+	<path d="M 175 290 L 180 295 L 185 285" stroke="#4CAF50" stroke-width="2" fill="none"/>
+
+	<rect x="170" y="310" width="20" height="20" rx="3" fill="#fff" stroke="#E0E0E0" stroke-width="2"/>
+</svg>

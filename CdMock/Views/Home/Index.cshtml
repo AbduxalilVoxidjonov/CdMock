@@ -1,0 +1,38 @@
+﻿﻿@{
+ViewData["Title"] = "Home Page";
+}
+
+<div class="text-center">
+    <h1 class="display-4">Welcome to TodoWeb! 🎉</h1>
+    <p class="lead">You have successfully logged in.</p>
+
+    <div class="mt-5">
+        <h3>Hello, @User.Identity?.Name!</h3>
+        <p>You are now authenticated and can access the application.</p>
+    </div>
+
+    <div class="mt-4">
+        <a asp-controller="Home" asp-action="Index" class="btn btn-danger btn-lg">Logout</a>
+    </div>
+</div>
+
+<style>
+    .text-center {
+        margin-top: 100px;
+    }
+
+    .display-4 {
+        color: #667eea;
+        font-weight: 700;
+    }
+
+    .lead {
+        font-size: 1.5rem;
+        color: #666;
+    }
+
+    h3 {
+        color: #333;
+        margin-bottom: 20px;
+    }
+</style>

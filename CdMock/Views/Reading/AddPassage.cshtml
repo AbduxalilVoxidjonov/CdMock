@@ -1,0 +1,98 @@
+﻿@using CdMock.Models.Mock
+@model Reading
+@{
+    ViewData["Title"] = "Reading Passage Qo'shish";
+}
+
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">
+                        <i class="bi bi-book me-2"></i>Reading Passage Qo'shish
+                    </h4>
+                </div>
+                <div class="card-body p-4">
+                    <form asp-action="AddPassage" method="post">
+                        <input type="hidden" asp-for="MockId" value="@ViewBag.MockId" />
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+                        <div class="mb-4">
+                            <label asp-for="Title" class="form-label fw-semibold">
+                                Passage Nomi <span class="text-danger">*</span>
+                            </label>
+                            <input asp-for="Title"
+                                   class="form-control form-control-lg"
+                                   placeholder="Masalan: Passage 1 - Climate Change" />
+                            <span asp-validation-for="Title" class="text-danger small"></span>
+                        </div>
+
+                        <div class="mb-4">
+                            <label asp-for="OrderNumber" class="form-label fw-semibold">
+                                Tartib Raqami <span class="text-danger">*</span>
+                            </label>
+                            <input asp-for="OrderNumber"
+                                   type="number"
+                                   class="form-control"
+                                   min="1"
+                                   value="1" />
+                            <small class="text-muted">Odatda 1, 2 yoki 3</small>
+                            <span asp-validation-for="OrderNumber" class="text-danger small"></span>
+                        </div>
+
+                        <div class="mb-4">
+                            <label asp-for="PassageText" class="form-label fw-semibold">
+                                Passage Matni <span class="text-danger">*</span>
+                            </label>
+                            <textarea asp-for="PassageText"
+                                      id="passage-editor"
+                                      class="form-control"
+                                      rows="20"
+                                      placeholder="Passage matnini kiriting..."></textarea>
+                            <span asp-validation-for="PassageText" class="text-danger small"></span>
+                            <small class="text-muted d-block mt-2">
+                                <i class="bi bi-info-circle me-1"></i>
+                                IELTS reading passage odatda 600-900 so'zdan iborat
+                            </small>
+                        </div>
+
+                        <div class="alert alert-info">
+                            <i class="bi bi-lightbulb me-2"></i>
+                            <strong>Keyingi qadam:</strong> Passage saqlanganidan so'ng savol qo'shishingiz mumkin bo'ladi.
+                        </div>
+
+                        <div class="d-flex gap-2 justify-content-end">
+                            <a asp-controller="Mock" asp-action="Details" asp-route-id="@ViewBag.MockId"
+                               class="btn btn-secondary rounded-pill px-4">
+                                <i class="bi bi-x-circle me-1"></i>Bekor qilish
+                            </a>
+                            <button type="submit" class="btn btn-primary rounded-pill px-4">
+                                <i class="bi bi-check-circle me-1"></i>Saqlash
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <!-- TinyMCE yoki CKEditor qo'shish mumkin -->
+    <script src="https://cdn.tiny.cloud/1/no-api-key/tinymce/6/tinymce.min.js"></script>
+    <script>
+        tinymce.init({
+            selector: '#passage-editor',
+            height: 500,
+            menubar: false,
+            plugins: 'lists link code',
+            toolbar: 'undo redo | formatselect | bold italic | alignleft aligncenter alignright | bullist numlist | removeformat code',
+            content_style: 'body { font-family: Arial; font-size: 14pt; line-height: 1.6; }'
+        });
+    </script>
+}

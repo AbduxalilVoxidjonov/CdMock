@@ -1,0 +1,114 @@
+﻿@model CdMock.Models.Mock.Mocks
+@{
+    ViewData["Title"] = "Yangi Mock Yaratish";
+}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-7">
+            <nav aria-label="breadcrumb" class="mb-4">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a asp-action="Index" class="text-decoration-none">Mocklar ro'yxati</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Yangi yaratish</li>
+                </ol>
+            </nav>
+
+            <div class="card shadow border-0">
+                <div class="card-header bg-primary text-white py-3">
+                    <h5 class="mb-0 d-flex align-items-center">
+                        <i class="bi bi-plus-lg me-2"></i>
+                        Yangi Mock Test Yaratish
+                    </h5>
+                </div>
+                <div class="card-body p-4">
+                    <form asp-action="Create" method="post" novalidate>
+                        @Html.AntiForgeryToken()
+                        <div asp-validation-summary="ModelOnly" class="text-danger small mb-3"></div>
+
+                        <div class="mb-4">
+                            <label asp-for="Title" class="form-label fw-bold text-secondary">
+                                Test Nomi <span class="text-danger">*</span>
+                            </label>
+                            <input asp-for="Title"
+                                   class="form-control form-control-lg border-2 shadow-none"
+                                   placeholder="Masalan: IELTS Mock Session #1"
+                                   autofocus />
+                            <span asp-validation-for="Title" class="text-danger small italic"></span>
+                        </div>
+
+                        <div class="mb-4">
+                            <label asp-for="Description" class="form-label fw-bold text-secondary">Tavsif</label>
+                            <textarea asp-for="Description"
+                                      class="form-control border-2 shadow-none"
+                                      rows="3"
+                                      placeholder="Ushbu test darajasi va qisqacha ko'rsatmalar..."></textarea>
+                            <span asp-validation-for="Description" class="text-danger small"></span>
+                        </div>
+
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <label asp-for="TimeLimit" class="form-label fw-bold text-secondary">
+                                    Vaqt Limiti (daqiqa) <span class="text-danger">*</span>
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light"><i class="bi bi-clock"></i></span>
+                                    <input asp-for="TimeLimit"
+                                           type="number"
+                                           class="form-control border-2 shadow-none"
+                                           value="180"
+                                           min="1" max="300" />
+                                </div>
+                                <span asp-validation-for="TimeLimit" class="text-danger small"></span>
+                                <div class="form-text mt-1">Standart: 180 daqiqa.</div>
+                            </div>
+
+                            <div class="col-md-6 d-flex align-items-center justify-content-md-end mt-3 mt-md-0">
+                                <div class="form-check form-switch p-0 ms-2">
+                                    <label class="form-check-label fw-bold text-secondary me-5" asp-for="IsActive">
+                                        Testni faollashtirish
+                                    </label>
+                                    <input asp-for="IsActive"
+                                           class="form-check-input float-end"
+                                           type="checkbox"
+                                           role="switch"
+                                           checked />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="alert alert-light border-start border-info border-4 shadow-sm mb-4">
+                            <div class="d-flex">
+                                <div class="me-3">
+                                    <i class="bi bi-info-circle-fill text-info fs-4"></i>
+                                </div>
+                                <div>
+                                    <h6 class="alert-heading fw-bold mb-1">Keyingi qadamlar</h6>
+                                    <p class="small mb-0 text-muted">
+                                        Asosiy ma'lumotlarni saqlaganingizdan so'ng, tizim sizni <strong>Details</strong> sahifasiga yo'naltiradi. U yerda Reading, Listening va Writing savollarini qo'shishingiz mumkin.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <hr class="my-4 text-muted">
+
+                        <div class="d-grid d-md-flex gap-2 justify-content-md-end">
+                            <a asp-action="Index" class="btn btn-outline-secondary px-4 rounded-pill">
+                                Bekor qilish
+                            </a>
+                            <button type="submit" class="btn btn-primary px-5 rounded-pill shadow-sm">
+                                <i class="bi bi-cloud-arrow-up me-2"></i>Saqlash va davom etish
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

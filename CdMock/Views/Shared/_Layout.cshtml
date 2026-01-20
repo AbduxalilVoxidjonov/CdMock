@@ -1,0 +1,146 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - CdMock</title>
+    <script type="importmap"></script>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/CdMock.styles.css" asp-append-version="true" />
+</head>
+<body>
+    <header>
+        <nav class="navbar navbar-expand-sm navbar-light bg-white border-bottom mb-3" style="box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+            <div class="container-fluid px-4">
+                <a class="navbar-brand d-flex align-items-center" asp-area="" asp-controller="Home" asp-action="Index" style="gap: 8px;">
+                    <div class="brand-icon" style="width: 24px; height: 24px; background: #1976d2; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                        <span style="color: white; font-weight: bold; font-size: 14px;">C</span>
+                    </div>
+                    <span style="font-weight: 700; font-size: 18px; color: #1a1a1a;">CdMock</span>
+                </a>
+
+                <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+                    @using Microsoft.AspNetCore.Identity
+                    @inject SignInManager<IdentityUser> SignInManager
+
+                    <ul class="navbar-nav ms-4" style="gap: 5px;">
+                        <li class="nav-item">
+                            <a class="nav-link px-3 py-2 rounded-pill custom-nav-link" asp-area="" asp-controller="Home" asp-action="Index">
+                                Home
+                            </a>
+                        </li>
+
+                        @if (SignInManager.IsSignedIn(User))
+                        {
+                            @* Mocks ro'yxati (Mock/Index.cshtml) *@
+                            <li class="nav-item">
+                                <a class="nav-link px-3 py-2 rounded-pill custom-nav-link" asp-area="" asp-controller="Mock" asp-action="Index">
+                                    Mocklar
+                                </a>
+                            </li>
+
+                            @* Mock Results - UserMockResult modeliga asoslangan action *@
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle px-3 py-2 rounded-pill custom-nav-link"
+                                   href="#"
+                                   id="navbarDropdown"
+                                   role="button"
+                                   data-bs-toggle="dropdown"
+                                   aria-expanded="false">
+                                    Tests
+                                </a>
+                                <ul class="dropdown-menu shadow" aria-labelledby="navbarDropdown">
+                                    <li>
+                                        <a class="dropdown-item" asp-area="" asp-controller="Mock" asp-action="TakeTest">Full Test</a>
+                                    </li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li>
+                                        <a class="dropdown-item" asp-area="" asp-controller="Reading" asp-action="Index">Only Reading</a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" asp-area="" asp-controller="Writing" asp-action="Index">Only Writing</a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" asp-area="" asp-controller="Listening" asp-action="Index">Only Listening</a>
+                                    </li>
+                                </ul>
+                            </li>
+
+                            @if (User.IsInRole("Admin"))
+                            {
+                                @* Admin uchun Mock yaratish (Mock/Create.cshtml) *@
+                                <li class="nav-item">
+                                    <a class="nav-link px-3 py-2 rounded-pill custom-nav-link" asp-area="" asp-controller="Mock" asp-action="Create">
+                                        Mock Qo'shish
+                                    </a>
+                                </li>
+
+                                @* Admin controller uchun *@
+                                <li class="nav-item">
+                                    <a class="nav-link px-3 py-2 rounded-pill custom-nav-link" asp-area="" asp-controller="Admin" asp-action="Index">
+                                        Barcha Userlar
+                                    </a>
+                                </li>
+                            }
+                        }
+                    </ul>
+
+                    <ul class="navbar-nav ms-auto" style="gap: 10px;">
+                        @if (SignInManager.IsSignedIn(User))
+                        {
+                            <li class="nav-item d-flex align-items-center">
+                                <span class="nav-link px-3" style="color: #4a5568; font-size: 14px;">
+                                    @User.Identity?.Name
+                                </span>
+                            </li>
+                            <li class="nav-item">
+                                @* Papka nomingiz Accaunt bo'lgani uchun asp-controller="Accaunt" qoldirildi *@
+                                <form asp-controller="Accaunt" asp-action="Logout" method="post" class="d-inline">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="btn btn-outline-secondary btn-sm rounded-pill px-4" style="font-weight: 500; border-width: 1.5px;">
+                                        Logout
+                                    </button>
+                                </form>
+                            </li>
+                        }
+                        else
+                        {
+                            <li class="nav-item d-flex align-items-center">
+                                <a class="nav-link px-3" asp-controller="Accaunt" asp-action="Login" style="color: #4a5568; font-weight: 500; font-size: 14px;">
+                                    Login
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="btn btn-primary btn-sm rounded-pill px-4" asp-controller="Accaunt" asp-action="Register" style="font-weight: 500; background: #1976d2; border: none; box-shadow: 0 2px 4px rgba(25,118,210,0.2);">
+                                    Get Started
+                                </a>
+                            </li>
+                        }
+                    </ul>
+                </div>
+            </div>
+        </nav>
+       
+    </header>
+    <div class="container">
+        <main role="main" class="pb-3">
+            @RenderBody()
+        </main>
+    </div>
+
+    <footer class="border-top footer text-muted">
+        <div class="container">
+            &copy; 2026 - CdMock - Barcha huquqlar himoyalangan
+        </div>
+    </footer>
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

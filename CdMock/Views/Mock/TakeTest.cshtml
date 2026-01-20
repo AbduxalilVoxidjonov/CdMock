@@ -1,0 +1,330 @@
+﻿@using CdMock.Models.Mock
+@model CdMock.Models.Mock.Mocks
+@{
+    ViewData["Title"] = "Test Topshirish - " + Model.Title;
+    Layout = "~/Views/Shared/_TestLayout.cshtml";
+}
+
+<style>
+    /* Umumiy dizayn */
+    .test-wrapper {
+        background: #f4f7f9;
+        min-height: 100vh;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .test-header {
+        z-index: 1050;
+        border-bottom: 2px solid #e0e6ed;
+    }
+
+    .timer-box {
+        background: #2d3436;
+        color: #fff;
+        padding: 10px 25px;
+        border-radius: 50px;
+        font-weight: bold;
+        font-size: 1.2rem;
+        min-width: 150px;
+        text-align: center;
+    }
+
+    /* Reading bo'limi uchun Split View (Yonma-yon) */
+    .reading-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+        height: 70vh;
+    }
+
+    .passage-scroll {
+        background: white;
+        padding: 25px;
+        border-radius: 12px;
+        overflow-y: auto;
+        border: 1px solid #dee2e6;
+        line-height: 1.8;
+        font-size: 1.1rem;
+    }
+
+    .questions-scroll {
+        overflow-y: auto;
+        padding-right: 10px;
+    }
+
+    /* Savollar dizayni */
+    .question-card {
+        background: white;
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 20px;
+        border-left: 5px solid #4361ee;
+        shadow: 0 4px 6px rgba(0,0,0,0.05);
+    }
+
+    .custom-option {
+        border: 1px solid #e0e6ed;
+        padding: 12px;
+        border-radius: 8px;
+        margin-bottom: 10px;
+        transition: 0.3s;
+        cursor: pointer;
+        display: block;
+    }
+
+        .custom-option:hover {
+            background: #f8faff;
+            border-color: #4361ee;
+        }
+
+    .form-check-input:checked + label {
+        font-weight: bold;
+        color: #4361ee;
+    }
+
+    /* Sidebar */
+    .nav-pills .nav-link {
+        color: #4b5563;
+        padding: 12px 20px;
+        border-radius: 10px;
+        margin-bottom: 5px;
+        background: white;
+        border: 1px solid #e5e7eb;
+    }
+
+        .nav-pills .nav-link.active {
+            background: #4361ee;
+            color: white;
+            border-color: #4361ee;
+        }
+
+    /* Animatsiya */
+    .timer-danger {
+        color: #ff7675 !important;
+        animation: blinker 1s linear infinite;
+    }
+
+    @@keyframes blinker {
+        50% {
+            opacity: 0;
+        }
+    }
+</style>
+
+<div class="test-wrapper">
+    <header class="test-header sticky-top bg-white py-3 shadow-sm">
+        <div class="container-fluid px-4 d-flex justify-content-between align-items-center">
+            <div>
+                <h4 class="mb-0 fw-bold">@Model.Title</h4>
+                <small class="text-muted">ID: #@Model.Id | Test rejimi</small>
+            </div>
+
+            <div class="timer-box" id="timer-container">
+                <i class="bi bi-clock me-2"></i><span id="timer">@Model.TimeLimit:00</span>
+            </div>
+
+            <div class="d-flex gap-2">
+                <button type="button" class="btn btn-outline-dark rounded-pill px-4" onclick="toggleFullScreen()">
+                    <i class="bi bi-arrows-fullscreen"></i>
+                </button>
+                <button type="button" class="btn btn-success rounded-pill px-4 fw-bold" data-bs-toggle="modal" data-bs-target="#submitModal">
+                    Testni Yakunlash
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <div class="container-fluid py-4">
+        <div class="row">
+            <div class="col-md-2">
+                <div class="nav flex-column nav-pills shadow-sm p-2 bg-white rounded-3 sticky-top" style="top: 100px;">
+                    <button class="nav-link active" data-bs-toggle="pill" data-bs-target="#reading-section">
+                        <i class="bi bi-book me-2"></i>Reading
+                    </button>
+                    <button class="nav-link" data-bs-toggle="pill" data-bs-target="#listening-section">
+                        <i class="bi bi-headphones me-2"></i>Listening
+                    </button>
+                    <button class="nav-link" data-bs-toggle="pill" data-bs-target="#writing-section">
+                        <i class="bi bi-pencil-square me-2"></i>Writing
+                    </button>
+                </div>
+            </div>
+
+            <div class="col-md-10">
+                <form id="test-form" asp-action="SubmitTest" method="post">
+                    <input type="hidden" name="mockId" value="@Model.Id" />
+
+                    <div class="tab-content">
+                        <div class="tab-pane fade show active" id="reading-section">
+                            @if (Model.Readings?.Any() == true)
+                            {
+                                @foreach (var reading in Model.Readings.OrderBy(r => r.OrderNumber))
+                                {
+                                    <div class="reading-module mb-5">
+                                        <h5 class="fw-bold mb-3 text-primary">Passage @reading.OrderNumber: @reading.Title</h5>
+                                        <div class="reading-grid">
+                                            <div class="passage-scroll shadow-sm">
+                                                @Html.Raw(reading.PassageText)
+                                            </div>
+                                            <div class="questions-scroll">
+                                                @foreach (var question in reading.Questions.OrderBy(q => q.OrderNumber))
+                                                {
+                                                    <div class="question-card shadow-sm">
+                                                        <p class="fw-bold mb-3">@question.OrderNumber. @question.QuestionText</p>
+
+                                                        @if (question.QuestionType == QuestionType.MultipleChoice)
+                                                        {
+                                                            <div class="options">
+                                                                @foreach (var opt in new[] { ("A", question.OptionA), ("B", question.OptionB), ("C", question.OptionC), ("D", question.OptionD) })
+                                                                {
+                                                                    <div class="form-check custom-option">
+                                                                        <input class="form-check-input" type="radio" name="reading_@question.Id" value="@opt.Item1" id="q_@question.Id@opt.Item1">
+                                                                        <label class="form-check-label d-block cursor-pointer" for="q_@question.Id@opt.Item1">
+                                                                            <strong>@opt.Item1.</strong> @opt.Item2
+                                                                        </label>
+                                                                    </div>
+                                                                }
+                                                            </div>
+                                                        }
+                                                        else if (question.QuestionType == QuestionType.FillInBlank)
+                                                        {
+                                                            <input type="text" class="form-control" name="reading_@question.Id" placeholder="Javobingizni yozing...">
+                                                        }
+                                                    </div>
+                                                }
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                            }
+                        </div>
+
+                        <div class="tab-pane fade" id="listening-section">
+                            <div class="card shadow-sm p-4">
+                                @if (Model.Listenings?.Any() == true)
+                                {
+                                    @foreach (var listening in Model.Listenings)
+                                    {
+                                        <div class="mb-5">
+                                            <h5 class="fw-bold">@listening.Title</h5>
+                                            <div class="bg-light p-3 rounded mb-4">
+                                                <audio controls class="w-100"><source src="@listening.AudioUrl" type="audio/mpeg"></audio>
+                                            </div>
+                                        </div>
+                                    }
+                                }
+                            </div>
+                        </div>
+
+                        <div class="tab-pane fade" id="writing-section">
+                            @if (Model.Writings?.Any() == true)
+                            {
+                                @foreach (var writing in Model.Writings)
+                                {
+                                    <div class="card shadow-sm p-4 mb-4">
+                                        <h5 class="fw-bold">@writing.Title</h5>
+                                        <div class="bg-light p-3 rounded mb-3">@Html.Raw(writing.TaskDescription)</div>
+                                        <textarea class="form-control writing-textarea" name="writing_@writing.Id" rows="15"
+                                          data-id="@writing.Id" placeholder="Writing taskni shu yerda boshlang..."></textarea>
+                                        <div class="text-end mt-2">
+                                            <span class="badge bg-secondary">So'zlar soni: <span id="word-count-@writing.Id">0</span></span>
+                                        </div>
+                                    </div>
+                                }
+                            }
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="submitModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header">
+                <h5 class="modal-title fw-bold">Testni yakunlash</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body text-center p-4">
+                <i class="bi bi-question-circle text-warning display-4"></i>
+                <p class="mt-3">Haqiqatan ham testni yakunlamoqchimisiz? Barcha javoblaringiz tekshirish uchun yuboriladi.</p>
+            </div>
+            <div class="modal-footer border-0">
+                <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Bekor qilish</button>
+                <button type="button" class="btn btn-success rounded-pill px-4" onclick="submitTest()">Ha, yuborish</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // 1. Timer Logic
+    let totalSeconds = @Model.TimeLimit * 60;
+    const timerElem = document.getElementById('timer');
+
+    function startTimer() {
+        const timerInterval = setInterval(() => {
+            if (totalSeconds <= 0) {
+                clearInterval(timerInterval);
+                submitTest();
+                return;
+            }
+            totalSeconds--;
+            let mins = Math.floor(totalSeconds / 60);
+            let secs = totalSeconds % 60;
+            timerElem.textContent = `${mins}:${secs.toString().padStart(2, '0')}`;
+
+            if (totalSeconds < 300) { // 5 min qolsa qizil
+                document.getElementById('timer-container').classList.add('timer-danger');
+            }
+        }, 1000);
+    }
+
+    // 2. Word Count Logic
+    document.querySelectorAll('.writing-textarea').forEach(textarea => {
+        textarea.addEventListener('input', function() {
+            const id = this.getAttribute('data-id');
+            const words = this.value.trim().split(/\s+/).filter(w => w.length > 0).length;
+            document.getElementById(`word-count-${id}`).textContent = words;
+        });
+    });
+
+    // 3. Auto-save in LocalStorage (Xatolikdan saqlanish uchun)
+    document.addEventListener('change', (e) => {
+        if (e.target.name) {
+            localStorage.setItem('mock_@Model.Id' + e.target.name, e.target.value);
+        }
+    });
+
+    function loadSavedAnswers() {
+        document.querySelectorAll('input[type="text"], textarea').forEach(input => {
+            const saved = localStorage.getItem('mock_@Model.Id' + input.name);
+            if (saved) input.value = saved;
+        });
+        // Radio tugmalar uchun ham shunday qilish mumkin
+    }
+
+    // 4. Fullscreen
+    function toggleFullScreen() {
+        if (!document.fullscreenElement) document.documentElement.requestFullscreen();
+        else document.exitFullscreen();
+    }
+
+    // 5. Submit
+    function submitTest() {
+        localStorage.clear();
+        document.getElementById('test-form').submit();
+    }
+
+    window.onload = () => {
+        startTimer();
+        loadSavedAnswers();
+    };
+
+    // Sahifadan chiqib ketishni oldini olish
+    window.onbeforeunload = function() {
+        return "Test davom etmoqda, chiqib ketsangiz natija saqlanmasligi mumkin!";
+    };
+</script>

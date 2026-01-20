@@ -1,0 +1,183 @@
+﻿@using CdMock.Models.Mock
+@model IEnumerable<Reading>
+@{
+    ViewData["Title"] = "Reading Bo'limini Boshqarish";
+    var mockId = ViewBag.MockId;
+}
+
+<div class="container-fluid py-4">
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item">
+                        <a asp-controller="Mock" asp-action="Index">Mock Testlar</a>
+                    </li>
+                    <li class="breadcrumb-item">
+                        <a asp-controller="Mock" asp-action="Details" asp-route-id="@mockId">Mock Details</a>
+                    </li>
+                    <li class="breadcrumb-item active">Reading</li>
+                </ol>
+            </nav>
+
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h2 class="fw-bold mb-1">📖 Reading Passages</h2>
+                    <p class="text-muted">Reading bo'limini boshqarish</p>
+                </div>
+                <a asp-action="AddPassage" asp-route-mockId="@mockId"
+                   class="btn btn-primary rounded-pill px-4">
+                    <i class="bi bi-plus-circle me-2"></i>Yangi Passage
+                </a>
+            </div>
+        </div>
+    </div>
+
+    @if (Model.Any())
+    {
+        @foreach (var reading in Model.OrderBy(r => r.OrderNumber))
+        {
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-header bg-gradient text-white d-flex justify-content-between align-items-center">
+                    <div>
+                        <h5 class="mb-0">@reading.Title</h5>
+                        <small>Passage @reading.OrderNumber</small>
+                    </div>
+                    <div>
+                        <span class="badge bg-white text-dark">
+                            @(reading.Questions?.Count ?? 0) savol
+                        </span>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div class="passage-preview bg-light p-3 rounded" style="max-height: 200px; overflow-y: auto;">
+                                @Html.Raw(reading.PassageText.Substring(0, Math.Min(500, reading.PassageText.Length)))...
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <h6 class="fw-bold mb-3">Savollar:</h6>
+                            @if (reading.Questions?.Any() == true)
+                            {
+                                <ul class="list-group list-group-flush">
+                                    @foreach (var question in reading.Questions.OrderBy(q => q.OrderNumber).Take(5))
+                                    {
+                                        <li class="list-group-item px-0 py-1">
+                                            <small>
+                                                <i class="bi bi-check-circle text-success me-1"></i>
+                                                Savol @question.OrderNumber (@question.QuestionType)
+                                            </small>
+                                        </li>
+                                    }
+                                    @if (reading.Questions.Count > 5)
+                                    {
+                                        <li class="list-group-item px-0 py-1">
+                                            <small class="text-muted">
+                                                va yana @(reading.Questions.Count - 5) ta...
+                                            </small>
+                                        </li>
+                                    }
+                                </ul>
+                            }
+                            else
+                            {
+                                <p class="text-muted small">Hozircha savol yo'q</p>
+                            }
+
+                            <div class="d-grid gap-2 mt-3">
+                                <a asp-action="AddQuestion" asp-route-readingId="@reading.Id"
+                                   class="btn btn-sm btn-outline-primary">
+                                    <i class="bi bi-plus-circle me-1"></i>Savol Qo'shish
+                                </a>
+                                <button type="button"
+                                        class="btn btn-sm btn-outline-secondary"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#editPassageModal"
+                                        data-reading-id="@reading.Id"
+                                        data-reading-title="@reading.Title">
+                                    <i class="bi bi-pencil me-1"></i>Tahrirlash
+                                </button>
+                                <button type="button"
+                                        class="btn btn-sm btn-outline-danger"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#deletePassageModal"
+                                        data-reading-id="@reading.Id"
+                                        data-reading-title="@reading.Title">
+                                    <i class="bi bi-trash me-1"></i>O'chirish
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+    else
+    {
+        <div class="alert alert-info text-center py-5">
+            <i class="bi bi-info-circle fs-1 d-block mb-3"></i>
+            <h4>Hozircha passage qo'shilmagan</h4>
+            <p class="text-muted mb-4">Reading bo'limini qo'shish uchun "Yangi Passage" tugmasini bosing</p>
+            <a asp-action="AddPassage" asp-route-mockId="@mockId"
+               class="btn btn-primary rounded-pill px-4">
+                <i class="bi bi-plus-circle me-2"></i>Birinchi Passage Qo'shish
+            </a>
+        </div>
+    }
+</div>
+
+<!-- Delete Passage Modal -->
+<div class="modal fade" id="deletePassageModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header border-0">
+                <h5 class="modal-title">
+                    <i class="bi bi-exclamation-triangle text-danger me-2"></i>Passage O'chirish
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Siz <strong id="passage-title"></strong> ni o'chirmoqchisiz.</p>
+                <div class="alert alert-warning">
+                    <i class="bi bi-exclamation-circle me-2"></i>
+                    Bu passage ga tegishli barcha savollar ham o'chiriladi!
+                </div>
+            </div>
+            <div class="modal-footer border-0">
+                <button type="button" class="btn btn-secondary rounded-pill" data-bs-dismiss="modal">
+                    Bekor qilish
+                </button>
+                <form asp-action="DeletePassage" method="post">
+                    <input type="hidden" name="id" id="delete-passage-id" />
+                    <button type="submit" class="btn btn-danger rounded-pill">
+                        <i class="bi bi-trash me-1"></i>O'chirish
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .bg-gradient {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+
+    .passage-preview {
+        line-height: 1.6;
+        font-size: 0.95rem;
+    }
+</style>
+
+<script>
+    const deleteModal = document.getElementById('deletePassageModal');
+    deleteModal?.addEventListener('show.bs.modal', function (event) {
+        const button = event.relatedTarget;
+        const readingId = button.getAttribute('data-reading-id');
+        const readingTitle = button.getAttribute('data-reading-title');
+
+        document.getElementById('delete-passage-id').value = readingId;
+        document.getElementById('passage-title').textContent = readingTitle;
+    });
+</script>

@@ -1,0 +1,302 @@
+﻿@model IEnumerable<Microsoft.AspNetCore.Identity.IdentityUser>
+@{
+    ViewData["Title"] = "Barcha Userlar";
+}
+
+<div class="container-fluid py-4">
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h2 class="fw-bold mb-1">👥 Barcha Userlar</h2>
+                    <p class="text-muted">Tizimda ro'yxatdan o'tgan barcha foydalanuvchilar</p>
+                </div>
+                <div class="badge bg-primary fs-5 px-3 py-2">
+                    Jami: @Model.Count() ta user
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Qidiruv -->
+    <div class="row mb-4">
+        <div class="col-md-6 mx-auto">
+            <div class="card shadow-sm border-0">
+                <div class="card-body">
+                    <form method="get" asp-action="Index">
+                        <div class="input-group">
+                            <span class="input-group-text bg-white border-end-0">
+                                <i class="bi bi-search"></i>
+                            </span>
+                            <input type="text"
+                                   name="searchString"
+                                   class="form-control border-start-0"
+                                   placeholder="User ismini kiriting..."
+                                   value="@ViewData["CurrentFilter"]">
+                            <button class="btn btn-primary px-4" type="submit">
+                                Qidirish
+                            </button>
+                            @if (!string.IsNullOrEmpty(ViewData["CurrentFilter"]?.ToString()))
+                            {
+                                <a asp-action="Index" class="btn btn-outline-secondary">
+                                    Tozalash
+                                </a>
+                            }
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Users Table -->
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card shadow-sm border-0">
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th scope="col" class="px-4 py-3">#</th>
+                                    <th scope="col" class="py-3">User ID</th>
+                                    <th scope="col" class="py-3">Username</th>
+                                    <th scope="col" class="py-3">Email</th>
+                                    <th scope="col" class="py-3 text-center">Status</th>
+                                    <th scope="col" class="py-3 text-center">Rol</th>
+                                    <th scope="col" class="py-3 text-center">Amallar</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @{
+                                    int index = ((int)ViewData["PageNumber"] - 1) * 20 + 1;
+                                }
+                                @foreach (var user in Model)
+                                {
+                                    var roles = ViewBag.UserRoles as Dictionary<string, string>;
+                                    var userRole = roles?.ContainsKey(user.Id) == true ? roles[user.Id] : "User";
+
+                                    <tr>
+                                        <td class="px-4 py-3 fw-semibold text-muted">@index</td>
+                                        <td class="py-3">
+                                            <span class="font-monospace small text-muted">@user.Id.Substring(0, 8)...</span>
+                                        </td>
+                                        <td class="py-3">
+                                            <div class="d-flex align-items-center">
+                                                <div class="avatar-circle me-2">
+                                                    @user.UserName?.Substring(0, 1).ToUpper()
+                                                </div>
+                                                <span class="fw-semibold">@user.UserName</span>
+                                            </div>
+                                        </td>
+                                        <td class="py-3">
+                                            <a href="mailto:@user.Email" class="text-decoration-none text-primary">
+                                                @user.Email
+                                            </a>
+                                        </td>
+                                        <td class="py-3 text-center">
+                                            @if (user.EmailConfirmed)
+                                            {
+                                                <span class="badge bg-success-subtle text-success px-3 py-2">
+                                                    <i class="bi bi-check-circle me-1"></i>Faol
+                                                </span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-warning-subtle text-warning px-3 py-2">
+                                                    <i class="bi bi-clock me-1"></i>Kutilmoqda
+                                                </span>
+                                            }
+                                        </td>
+                                        <td class="py-3 text-center">
+                                            @if (userRole == "Admin")
+                                            {
+                                                <span class="badge bg-danger px-3 py-2">
+                                                    <i class="bi bi-shield-fill-check me-1"></i>Admin
+                                                </span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-primary px-3 py-2">
+                                                    <i class="bi bi-person-fill me-1"></i>User
+                                                </span>
+                                            }
+                                        </td>
+                                        <td class="py-3 text-center">
+                                            <button type="button"
+                                                    class="btn btn-sm btn-outline-primary rounded-pill px-3"
+                                                    data-bs-toggle="modal"
+                                                    data-bs-target="#changeRoleModal"
+                                                    data-user-id="@user.Id"
+                                                    data-user-name="@user.UserName"
+                                                    data-current-role="@userRole">
+                                                <i class="bi bi-arrow-repeat me-1"></i>Rolni o'zgartirish
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    index++;
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pagination -->
+    @{
+        var pageNumber = (int)ViewData["PageNumber"];
+        var totalPages = (int)ViewData["TotalPages"];
+        var hasNextPage = (bool)ViewData["HasNextPage"];
+        var hasPreviousPage = (bool)ViewData["HasPreviousPage"];
+    }
+
+    @if (totalPages > 1)
+    {
+        <div class="row mt-4">
+            <div class="col-md-12">
+                <nav aria-label="Page navigation">
+                    <ul class="pagination justify-content-center">
+                        <li class="page-item @(!hasPreviousPage ? "disabled" : "")">
+                            <a class="page-link"
+                               asp-action="Index"
+                               asp-route-pageNumber="@(pageNumber - 1)"
+                               asp-route-searchString="@ViewData["CurrentFilter"]">
+                                <i class="bi bi-chevron-left"></i> Oldingi
+                            </a>
+                        </li>
+
+                        @for (int i = 1; i <= totalPages; i++)
+                        {
+                            <li class="page-item @(i == pageNumber ? "active" : "")">
+                                <a class="page-link"
+                                   asp-action="Index"
+                                   asp-route-pageNumber="@i"
+                                   asp-route-searchString="@ViewData["CurrentFilter"]">
+                                    @i
+                                </a>
+                            </li>
+                        }
+
+                        <li class="page-item @(!hasNextPage ? "disabled" : "")">
+                            <a class="page-link"
+                               asp-action="Index"
+                               asp-route-pageNumber="@(pageNumber + 1)"
+                               asp-route-searchString="@ViewData["CurrentFilter"]">
+                                Keyingi <i class="bi bi-chevron-right"></i>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    }
+</div>
+
+<!-- Rolni o'zgartirish Modal -->
+<div class="modal fade" id="changeRoleModal" tabindex="-1" aria-labelledby="changeRoleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header border-0">
+                <h5 class="modal-title fw-bold" id="changeRoleModalLabel">
+                    <i class="bi bi-arrow-repeat text-primary me-2"></i>Rolni o'zgartirish
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form asp-action="ChangeRole" method="post">
+                <div class="modal-body">
+                    <input type="hidden" name="userId" id="modal-user-id" />
+
+                    <div class="alert alert-info d-flex align-items-center" role="alert">
+                        <i class="bi bi-info-circle me-2"></i>
+                        <div>
+                            <strong id="modal-user-name"></strong> uchun yangi rol tanlang
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="newRole" class="form-label fw-semibold">Yangi Rol</label>
+                        <select class="form-select form-select-lg" name="newRole" id="modal-new-role" required>
+                            <option value="">Rolni tanlang...</option>
+                            <option value="User">👤 User</option>
+                            <option value="Admin">🛡️ Admin</option>
+                        </select>
+                    </div>
+
+                    <div class="alert alert-warning d-flex align-items-start" role="alert">
+                        <i class="bi bi-exclamation-triangle me-2 mt-1"></i>
+                        <small>Admin roli barcha tizim funksiyalariga to'liq kirish huquqini beradi!</small>
+                    </div>
+                </div>
+                <div class="modal-footer border-0">
+                    <button type="button" class="btn btn-secondary rounded-pill px-4" data-bs-dismiss="modal">
+                        Bekor qilish
+                    </button>
+                    <button type="submit" class="btn btn-primary rounded-pill px-4">
+                        <i class="bi bi-check-circle me-1"></i>Saqlash
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+    .avatar-circle {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        font-size: 16px;
+    }
+
+    .table tbody tr {
+        transition: all 0.2s ease;
+    }
+
+        .table tbody tr:hover {
+            background-color: #f8f9fa;
+            transform: scale(1.01);
+        }
+
+    .badge {
+        font-weight: 500;
+        font-size: 0.85rem;
+    }
+
+    .card {
+        transition: all 0.3s ease;
+    }
+
+    .pagination .page-link {
+        border-radius: 8px;
+        margin: 0 3px;
+        border: 1px solid #dee2e6;
+    }
+
+    .pagination .page-item.active .page-link {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-color: #667eea;
+    }
+</style>
+
+<script>
+    // Modal uchun ma'lumotlarni to'ldirish
+    const changeRoleModal = document.getElementById('changeRoleModal');
+    changeRoleModal.addEventListener('show.bs.modal', function (event) {
+        const button = event.relatedTarget;
+        const userId = button.getAttribute('data-user-id');
+        const userName = button.getAttribute('data-user-name');
+        const currentRole = button.getAttribute('data-current-role');
+
+        document.getElementById('modal-user-id').value = userId;
+        document.getElementById('modal-user-name').textContent = userName;
+        document.getElementById('modal-new-role').value = currentRole;
+    });
+</script>
