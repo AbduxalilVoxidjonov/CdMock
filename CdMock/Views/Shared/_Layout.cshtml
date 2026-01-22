@@ -7,6 +7,7 @@
     <script type="importmap"></script>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <link rel="stylesheet" href="~/CdMock.styles.css" asp-append-version="true" />
 </head>
 <body>
@@ -44,7 +45,11 @@
                                 </a>
                             </li>
 
-                            @* Mock Results - UserMockResult modeliga asoslangan action *@
+                        
+
+                            @if (User.IsInRole("Admin"))
+                            {
+                                    @* Mock Results - UserMockResult modeliga asoslangan action *@
                             <li class="nav-item dropdown">
                                 <a class="nav-link dropdown-toggle px-3 py-2 rounded-pill custom-nav-link"
                                    href="#"
@@ -52,14 +57,10 @@
                                    role="button"
                                    data-bs-toggle="dropdown"
                                    aria-expanded="false">
-                                    Tests
+                                    Mock section
                                 </a>
                                 <ul class="dropdown-menu shadow" aria-labelledby="navbarDropdown">
-                                    <li>
-                                        <a class="dropdown-item" asp-area="" asp-controller="Mock" asp-action="TakeTest">Full Test</a>
-                                    </li>
-                                    <li><hr class="dropdown-divider"></li>
-                                    <li>
+                                                                        <li>
                                         <a class="dropdown-item" asp-area="" asp-controller="Reading" asp-action="Index">Only Reading</a>
                                     </li>
                                     <li>
@@ -70,9 +71,6 @@
                                     </li>
                                 </ul>
                             </li>
-
-                            @if (User.IsInRole("Admin"))
-                            {
                                 @* Admin uchun Mock yaratish (Mock/Create.cshtml) *@
                                 <li class="nav-item">
                                     <a class="nav-link px-3 py-2 rounded-pill custom-nav-link" asp-area="" asp-controller="Mock" asp-action="Create">

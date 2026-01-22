@@ -1,0 +1,182 @@
+﻿@using System.IO
+@model CdMock.Models.Writing.WritingTask
+
+@{
+    ViewData["Title"] = "Writing Task O'chirish";
+}
+
+<div class="container-fluid px-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="mb-0 text-danger">
+            <i class="bi bi-exclamation-triangle me-2"></i>Writing Task O'chirish
+        </h2>
+        <a asp-action="Index" class="btn btn-secondary">
+            <i class="bi bi-arrow-left me-1"></i>Orqaga
+        </a>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card shadow-sm border-danger">
+                <div class="card-body">
+                    <div class="alert alert-danger">
+                        <i class="bi bi-exclamation-triangle me-2"></i>
+                        <strong>Ogohlantirish!</strong> Ushbu writing taskni o'chirishni xohlaysizmi?
+                        <br />
+                        <small>Bu amal bekor qilinmaydi va barcha rasmlar ham o'chirib tashlanadi!</small>
+                    </div>
+
+                    <dl class="row">
+                        <dt class="col-sm-3">ID:</dt>
+                        <dd class="col-sm-9">#@Model.TaskId</dd>
+
+                        <dt class="col-sm-3">Sarlavha:</dt>
+                        <dd class="col-sm-9"><strong>@Model.Title</strong></dd>
+
+                        <dt class="col-sm-3">Task Turi:</dt>
+                        <dd class="col-sm-9">
+                            @if (Model.TaskType == CdMock.Models.Writing.TaskType.Task1)
+                            {
+                                <span class="badge bg-primary">Task 1</span>
+                            }
+                            else if (Model.TaskType == CdMock.Models.Writing.TaskType.Task2)
+                            {
+                                <span class="badge bg-success">Task 2</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-info">Ikkala Task</span>
+                            }
+                        </dd>
+
+                        <dt class="col-sm-3">Mock Exam:</dt>
+                        <dd class="col-sm-9">
+                            @if (Model.Mocks != null)
+                            {
+                                <span class="badge bg-info">@Model.Mocks.Name</span>
+                            }
+                        </dd>
+
+                        <dt class="col-sm-3">Yaratilgan:</dt>
+                        <dd class="col-sm-9">@Model.CreatedAt.ToString("dd.MM.yyyy HH:mm")</dd>
+                    </dl>
+
+                    <hr />
+
+                    <!-- Task 1 Preview -->
+                    @if (!string.IsNullOrEmpty(Model.Task1ImagePath))
+                    {
+                        <div class="mb-4">
+                            <h6 class="text-muted">
+                                <i class="bi bi-1-circle me-2"></i>Task 1 Rasm (o'chiriladi):
+                            </h6>
+                            <img src="@Model.Task1ImagePath" alt="Task 1" class="img-fluid rounded border" style="max-height: 200px;" />
+                            <p class="mt-2 mb-0">
+                                <small class="text-muted">@Model.Task1ImageName</small>
+                            </p>
+                        </div>
+                    }
+
+                    <!-- Task 2 Preview -->
+                    @if (!string.IsNullOrEmpty(Model.Task2ImagePath))
+                    {
+                        <div class="mb-4">
+                            <h6 class="text-muted">
+                                <i class="bi bi-2-circle me-2"></i>Task 2 Rasm (o'chiriladi):
+                            </h6>
+                            <img src="@Model.Task2ImagePath" alt="Task 2" class="img-fluid rounded border" style="max-height: 200px;" />
+                            <p class="mt-2 mb-0">
+                                <small class="text-muted">@Model.Task2ImageName</small>
+                            </p>
+                        </div>
+                    }
+
+                    <hr />
+
+                    <form asp-action="Delete" method="post">
+                        <input type="hidden" asp-for="TaskId" />
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-danger">
+                                <i class="bi bi-trash me-1"></i>Ha, O'chirish
+                            </button>
+                            <a asp-action="Index" class="btn btn-secondary">Yo'q, Bekor qilish</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card shadow-sm border-danger">
+                <div class="card-header bg-danger text-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-exclamation-octagon me-2"></i>O'chiriladi
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-unstyled mb-0">
+                        <li class="mb-2">
+                            <i class="bi bi-x-circle text-danger me-2"></i>
+                            Writing task ma'lumotlari
+                        </li>
+                        @if (!string.IsNullOrEmpty(Model.Task1ImagePath))
+                        {
+                            <li class="mb-2">
+                                <i class="bi bi-x-circle text-danger me-2"></i>
+                                Task 1 rasm fayli
+                            </li>
+                        }
+                        @if (!string.IsNullOrEmpty(Model.Task2ImagePath))
+                        {
+                            <li class="mb-2">
+                                <i class="bi bi-x-circle text-danger me-2"></i>
+                                Task 2 rasm fayli
+                            </li>
+                        }
+                        <li class="mb-2">
+                            <i class="bi bi-x-circle text-danger me-2"></i>
+                            Bu amal qaytarib bo'lmaydi
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="card shadow-sm mt-3">
+                <div class="card-header bg-light">
+                    <h6 class="mb-0">
+                        <i class="bi bi-info-circle me-2"></i>Task Ma'lumotlari
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <p class="mb-1"><strong>ID:</strong></p>
+                    <p class="text-muted small">#@Model.TaskId</p>
+
+                    <p class="mb-1"><strong>Sarlavha:</strong></p>
+                    <p class="text-muted small">@Model.Title</p>
+
+                    <p class="mb-1"><strong>Task Turi:</strong></p>
+                    <p class="text-muted small">@Model.TaskType</p>
+
+                    @if (!string.IsNullOrEmpty(Model.Task1Instructions))
+                    {
+                        <p class="mb-1"><strong>Task 1 Ko'rsatma:</strong></p>
+                        <p class="text-muted small">@Model.Task1Instructions</p>
+                    }
+
+                    @if (!string.IsNullOrEmpty(Model.Task2Instructions))
+                    {
+                        <p class="mb-1"><strong>Task 2 Ko'rsatma:</strong></p>
+                        <p class="text-muted small">@Model.Task2Instructions</p>
+                    }
+
+                    <p class="mb-1"><strong>Rasmlar:</strong></p>
+                    <p class="text-muted small">
+                        Task 1: @(string.IsNullOrEmpty(Model.Task1ImagePath) ? "Yo'q" : "Mavjud")
+                        <br />
+                        Task 2: @(string.IsNullOrEmpty(Model.Task2ImagePath) ? "Yo'q" : "Mavjud")
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

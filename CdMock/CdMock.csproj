@@ -7,6 +7,17 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+	  <Compile Remove="wwwroot\audio\**" />
+	  <Compile Remove="wwwroot\uploads\**" />
+	  <Content Remove="wwwroot\audio\**" />
+	  <Content Remove="wwwroot\uploads\**" />
+	  <EmbeddedResource Remove="wwwroot\audio\**" />
+	  <EmbeddedResource Remove="wwwroot\uploads\**" />
+	  <None Remove="wwwroot\audio\**" />
+	  <None Remove="wwwroot\uploads\**" />
+	</ItemGroup>
+
+	<ItemGroup>
 		<!-- Entity Framework Core -->
 		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.0" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.0">
@@ -21,14 +32,10 @@
 		<!-- Identity - ASP.NET Core 8 da built-in -->
 		<PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.0" />
 		<PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="8.0.0" />
+		<PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
 
 		<!-- Swagger - API documentation uchun -->
 		<PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
-	</ItemGroup>
-
-	<ItemGroup>
-	  <Folder Include="wwwroot\audio\" />
-	  <Folder Include="wwwroot\uploads\" />
 	</ItemGroup>
 
 </Project>

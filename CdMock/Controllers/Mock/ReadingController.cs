@@ -1,8 +1,9 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using CdMock.Data;
+using CdMock.Models.Reading;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using CdMock.Data;
-using CdMock.Models.Mock;
 
 namespace CdMock.Controllers
 {
@@ -16,84 +17,161 @@ namespace CdMock.Controllers
             _context = context;
         }
 
-        // GET: Reading/Index?mockId=5 - Barcha reading passages
-        public async Task<IActionResult> Index(int mockId)
+        // GET: ReadingTexts
+        public async Task<IActionResult> Index()
         {
-            var mock = await _context.Mocks.FindAsync(mockId);
-            if (mock == null)
-            {
-                return NotFound();
-            }
-
-            ViewBag.MockId = mockId;
-            ViewBag.MockTitle = mock.Title;
-
-            var readings = await _context.Readings
-                .Include(r => r.Questions)
-                .Where(r => r.MockId == mockId)
-                .OrderBy(r => r.OrderNumber)
+            var readingTexts = await _context.ReadingTexts
+                .Include(r => r.Mocks)
+                .OrderByDescending(r => r.TextId)
                 .ToListAsync();
 
-            return View(readings);
-        }
-
-        // GET: Reading/AddPassage?mockId=5 - Passage qo'shish sahifasi
-        public async Task<IActionResult> AddPassage(int mockId)
-        {
-            var mock = await _context.Mocks.FindAsync(mockId);
-            if (mock == null)
+            // Agar malumot bo'lmasa
+            if (!readingTexts.Any())
             {
-                return NotFound();
+                ViewBag.Message = "Hozircha reading text yo'q";
             }
 
-            ViewBag.MockId = mockId;
-            ViewBag.MockTitle = mock.Title;
-
-            return View();
+            return View(readingTexts);
         }
 
-        // POST: Reading/AddPassage - Passage saqlash
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> AddPassage([Bind("MockId,Title,PassageText,OrderNumber")] Reading reading)
-        {
-            if (ModelState.IsValid)
-            {
-                _context.Add(reading);
-                await _context.SaveChangesAsync();
-
-                TempData["Success"] = $"✅ {reading.Title} muvaffaqiyatli qo'shildi!";
-                return RedirectToAction(nameof(Index), new { mockId = reading.MockId });
-            }
-
-            ViewBag.MockId = reading.MockId;
-            return View(reading);
-        }
-
-        // GET: Reading/EditPassage/5 - Passage tahrirlash
-        public async Task<IActionResult> EditPassage(int? id)
+        // GET: ReadingTexts/Details/5
+        public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
             {
                 return NotFound();
             }
 
-            var reading = await _context.Readings.FindAsync(id);
-            if (reading == null)
+            var readingText = await _context.ReadingTexts
+                .Include(r => r.Mocks)
+                .FirstOrDefaultAsync(m => m.TextId == id);
+
+            if (readingText == null)
             {
                 return NotFound();
             }
 
-            ViewBag.MockId = reading.MockId;
-            return View(reading);
+            return View(readingText);
         }
 
-        // POST: Reading/EditPassage/5 - Passage yangilash
+        // GET: ReadingTexts/Create
+        public IActionResult Create()
+        {
+            // Mocklar ro'yxatini olish
+            var activeMocks = _context.Mocks
+                .Where(m => m.IsActive)
+                .OrderByDescending(m => m.CreatedAt)
+                .Select(m => new { m.Id, m.Name })
+                .ToList();
+
+            // Debugging uchun
+            Console.WriteLine($"Aktiv mocklar soni: {activeMocks.Count}");
+
+            // Agar mocklar bo'lmasa
+            if (!activeMocks.Any())
+            {
+                TempData["Error"] = "Avval Mock yaratish kerak! Aktiv mock topilmadi.";
+                return RedirectToAction("Create", "Mock");
+            }
+
+            // ViewBag ga yuklash
+            ViewBag.Mocks = new SelectList(activeMocks, "Id", "Name");
+            ViewBag.MocksCount = activeMocks.Count; // Debugging uchun
+
+            return View();
+        }
+
+        // POST: ReadingTexts/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> EditPassage(int id, [Bind("Id,MockId,Title,PassageText,OrderNumber")] Reading reading)
+        public async Task<IActionResult> Create(ReadingText readingText)
         {
-            if (id != reading.Id)
+            // DEBUGGING: Qabul qilingan ma'lumotlarni tekshirish
+            Console.WriteLine($"=== CREATE POST ===");
+            Console.WriteLine($"Title: {readingText.Title}");
+            Console.WriteLine($"MockId: {readingText.MockId}");
+            Console.WriteLine($"Text length: {readingText.Text?.Length ?? 0}");
+            Console.WriteLine($"ModelState.IsValid: {ModelState.IsValid}");
+
+            // Xatolarni console ga chiqarish
+            if (!ModelState.IsValid)
+            {
+                Console.WriteLine("=== VALIDATION ERRORS ===");
+                foreach (var key in ModelState.Keys)
+                {
+                    var errors = ModelState[key].Errors;
+                    if (errors.Any())
+                    {
+                        Console.WriteLine($"Field: {key}");
+                        foreach (var error in errors)
+                        {
+                            Console.WriteLine($"  Error: {error.ErrorMessage}");
+                            if (error.Exception != null)
+                            {
+                                Console.WriteLine($"  Exception: {error.Exception.Message}");
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    _context.Add(readingText);
+                    await _context.SaveChangesAsync();
+                    Console.WriteLine("✅ Muvaffaqiyatli saqlandi!");
+                    TempData["Success"] = "Reading text muvaffaqiyatli qo'shildi!";
+                    return RedirectToAction(nameof(Index));
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"❌ Saqlashda xatolik: {ex.Message}");
+                    ModelState.AddModelError("", $"Saqlashda xatolik: {ex.Message}");
+                }
+            }
+
+            // Agar validation xato bo'lsa, mocklar ro'yxatini qaytadan yuklash
+            var activeMocks = _context.Mocks
+                .Where(m => m.IsActive)
+                .Select(m => new { m.Id, m.Name })
+                .ToList();
+
+            ViewBag.Mocks = new SelectList(activeMocks, "Id", "Name", readingText.MockId);
+
+            return View(readingText);
+        }
+
+        // GET: ReadingTexts/Edit/5
+        public async Task<IActionResult> Edit(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var readingText = await _context.ReadingTexts.FindAsync(id);
+            if (readingText == null)
+            {
+                return NotFound();
+            }
+
+            var activeMocks = _context.Mocks
+                .Where(m => m.IsActive)
+                .Select(m => new { m.Id, m.Name })
+                .ToList();
+
+            ViewBag.Mocks = new SelectList(activeMocks, "Id", "Name", readingText.MockId);
+            return View(readingText);
+        }
+
+        // POST: ReadingTexts/Edit/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(int id, ReadingText readingText)
+        {
+            if (id != readingText.TextId)
             {
                 return NotFound();
             }
@@ -102,13 +180,13 @@ namespace CdMock.Controllers
             {
                 try
                 {
-                    _context.Update(reading);
+                    _context.Update(readingText);
                     await _context.SaveChangesAsync();
-                    TempData["Success"] = $"✅ {reading.Title} muvaffaqiyatli yangilandi!";
+                    TempData["Success"] = "Reading text muvaffaqiyatli yangilandi!";
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!ReadingExists(reading.Id))
+                    if (!ReadingTextExists(readingText.TextId))
                     {
                         return NotFound();
                     }
@@ -117,210 +195,57 @@ namespace CdMock.Controllers
                         throw;
                     }
                 }
-                return RedirectToAction(nameof(Index), new { mockId = reading.MockId });
-            }
-
-            ViewBag.MockId = reading.MockId;
-            return View(reading);
-        }
-
-        // POST: Reading/DeletePassage/5 - Passage o'chirish
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeletePassage(int id)
-        {
-            var reading = await _context.Readings.FindAsync(id);
-            if (reading == null)
-            {
-                TempData["Error"] = "Passage topilmadi!";
                 return RedirectToAction(nameof(Index));
             }
 
-            int mockId = reading.MockId;
-            _context.Readings.Remove(reading);
-            await _context.SaveChangesAsync();
+            var activeMocks = _context.Mocks
+                .Where(m => m.IsActive)
+                .Select(m => new { m.Id, m.Name })
+                .ToList();
 
-            TempData["Success"] = $"✅ {reading.Title} muvaffaqiyatli o'chirildi!";
-            return RedirectToAction(nameof(Index), new { mockId });
+            ViewBag.Mocks = new SelectList(activeMocks, "Id", "Name", readingText.MockId);
+            return View(readingText);
         }
 
-        // GET: Reading/AddQuestion?readingId=5 - Savol qo'shish sahifasi
-        public async Task<IActionResult> AddQuestion(int readingId)
+        // GET: ReadingTexts/Delete/5
+        public async Task<IActionResult> Delete(int? id)
         {
-            var reading = await _context.Readings
-                .Include(r => r.Mock)
-                .FirstOrDefaultAsync(r => r.Id == readingId);
-
-            if (reading == null)
+            if (id == null)
             {
                 return NotFound();
             }
 
-            ViewBag.ReadingId = readingId;
-            ViewBag.ReadingTitle = reading.Title;
-            ViewBag.MockId = reading.MockId;
+            var readingText = await _context.ReadingTexts
+                .Include(r => r.Mocks)
+                .FirstOrDefaultAsync(m => m.TextId == id);
 
-            // Keyingi savol raqamini aniqlash
-            var lastQuestion = await _context.ReadingQuestions
-                .Where(q => q.ReadingId == readingId)
-                .OrderByDescending(q => q.OrderNumber)
-                .FirstOrDefaultAsync();
+            if (readingText == null)
+            {
+                return NotFound();
+            }
 
-            ViewBag.NextOrderNumber = (lastQuestion?.OrderNumber ?? 0) + 1;
-
-            return View();
+            return View(readingText);
         }
 
-        // POST: Reading/AddQuestion - Savol saqlash
-        [HttpPost]
+        // POST: ReadingTexts/Delete/5
+        [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> AddQuestion([Bind("ReadingId,QuestionText,QuestionType,CorrectAnswer,OptionA,OptionB,OptionC,OptionD,OrderNumber,Points")] ReadingQuestion question)
+        public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            if (ModelState.IsValid)
+            var readingText = await _context.ReadingTexts.FindAsync(id);
+            if (readingText != null)
             {
-                _context.Add(question);
+                _context.ReadingTexts.Remove(readingText);
                 await _context.SaveChangesAsync();
-
-                TempData["Success"] = $"✅ Savol {question.OrderNumber} muvaffaqiyatli qo'shildi!";
-
-                // Yana savol qo'shish uchun qaytish
-                return RedirectToAction(nameof(AddQuestion), new { readingId = question.ReadingId });
+                TempData["Success"] = "Reading text o'chirildi!";
             }
 
-            ViewBag.ReadingId = question.ReadingId;
-            return View(question);
+            return RedirectToAction(nameof(Index));
         }
 
-        // GET: Reading/EditQuestion/5 - Savol tahrirlash
-        public async Task<IActionResult> EditQuestion(int? id)
+        private bool ReadingTextExists(int id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var question = await _context.ReadingQuestions
-                .Include(q => q.Reading)
-                .FirstOrDefaultAsync(q => q.Id == id);
-
-            if (question == null)
-            {
-                return NotFound();
-            }
-
-            ViewBag.ReadingId = question.ReadingId;
-            ViewBag.ReadingTitle = question.Reading.Title;
-            return View(question);
-        }
-
-        // POST: Reading/EditQuestion/5 - Savol yangilash
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> EditQuestion(int id, [Bind("Id,ReadingId,QuestionText,QuestionType,CorrectAnswer,OptionA,OptionB,OptionC,OptionD,OrderNumber,Points")] ReadingQuestion question)
-        {
-            if (id != question.Id)
-            {
-                return NotFound();
-            }
-
-            if (ModelState.IsValid)
-            {
-                try
-                {
-                    _context.Update(question);
-                    await _context.SaveChangesAsync();
-                    TempData["Success"] = "✅ Savol muvaffaqiyatli yangilandi!";
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!QuestionExists(question.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-
-                var reading = await _context.Readings.FindAsync(question.ReadingId);
-                return RedirectToAction(nameof(ManageQuestions), new { readingId = question.ReadingId });
-            }
-
-            ViewBag.ReadingId = question.ReadingId;
-            return View(question);
-        }
-
-        // POST: Reading/DeleteQuestion/5 - Savol o'chirish
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteQuestion(int id)
-        {
-            var question = await _context.ReadingQuestions.FindAsync(id);
-            if (question == null)
-            {
-                TempData["Error"] = "Savol topilmadi!";
-                return RedirectToAction(nameof(Index));
-            }
-
-            int readingId = question.ReadingId;
-            _context.ReadingQuestions.Remove(question);
-            await _context.SaveChangesAsync();
-
-            TempData["Success"] = "✅ Savol muvaffaqiyatli o'chirildi!";
-            return RedirectToAction(nameof(ManageQuestions), new { readingId });
-        }
-
-        // GET: Reading/ManageQuestions?readingId=5 - Barcha savollarni boshqarish
-        public async Task<IActionResult> ManageQuestions(int readingId)
-        {
-            var reading = await _context.Readings
-                .Include(r => r.Mock)
-                .Include(r => r.Questions)
-                .FirstOrDefaultAsync(r => r.Id == readingId);
-
-            if (reading == null)
-            {
-                return NotFound();
-            }
-
-            ViewBag.ReadingId = readingId;
-            ViewBag.ReadingTitle = reading.Title;
-            ViewBag.MockId = reading.MockId;
-
-            var questions = reading.Questions.OrderBy(q => q.OrderNumber).ToList();
-            return View(questions);
-        }
-
-        // GET: Reading/PreviewPassage/5 - Passage ko'rish (preview)
-        public async Task<IActionResult> PreviewPassage(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var reading = await _context.Readings
-                .Include(r => r.Mock)
-                .Include(r => r.Questions)
-                .FirstOrDefaultAsync(r => r.Id == id);
-
-            if (reading == null)
-            {
-                return NotFound();
-            }
-
-            return View(reading);
-        }
-
-        private bool ReadingExists(int id)
-        {
-            return _context.Readings.Any(e => e.Id == id);
-        }
-
-        private bool QuestionExists(int id)
-        {
-            return _context.ReadingQuestions.Any(e => e.Id == id);
+            return _context.ReadingTexts.Any(e => e.TextId == id);
         }
     }
 }

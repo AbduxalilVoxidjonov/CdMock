@@ -1,18 +1,18 @@
 ﻿@model CdMock.Models.Mocks
-
 @{
-    ViewData["Title"] = "Yangi Mock Qo'shish";
+    ViewData["Title"] = "Ma'lumotni Tahrirlash";
 }
 
 <div class="container mt-5">
     <div class="row justify-content-center">
         <div class="col-md-6">
             <div class="card shadow-lg border-0 rounded-3">
-                <div class="card-header bg-primary text-white text-center py-3">
-                    <h4 class="mb-0"><i class="bi bi-plus-circle me-2"></i>Yangi Ma'lumot Qo'shish</h4>
+                <div class="card-header bg-warning text-dark text-center py-3">
+                    <h4 class="mb-0"><i class="bi bi-pencil-square me-2"></i>Ma'lumotni Tahrirlash</h4>
                 </div>
                 <div class="card-body p-4">
-                    <form asp-action="Create" method="post">
+                    <form asp-action="Edit" method="post">
+                        <input type="hidden" asp-for="Id" />
                         <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
 
                         <div class="mb-3">
@@ -29,7 +29,7 @@
 
                         <div class="mb-3">
                             <label asp-for="CreatedAt" class="form-label fw-bold"></label>
-                            <input asp-for="CreatedAt" type="datetime-local" class="form-control" value="@DateTime.Now.ToString("yyyy-MM-ddTHH:mm")" />
+                            <input asp-for="CreatedAt" type="datetime-local" class="form-control" />
                             <span asp-validation-for="CreatedAt" class="text-danger small"></span>
                         </div>
 
@@ -43,11 +43,11 @@
                         </div>
 
                         <div class="d-grid gap-2">
-                            <button type="submit" class="btn btn-success btn-lg">
-                                <i class="bi bi-save me-1"></i> Saqlash
+                            <button type="submit" class="btn btn-warning btn-lg text-dark">
+                                <i class="bi bi-save me-1"></i>O'zgarishlarni Saqlash
                             </button>
                             <a asp-action="Index" class="btn btn-outline-secondary">
-                                Orqaga qaytish
+                                <i class="bi bi-x-circle me-1"></i>Bekor qilish
                             </a>
                         </div>
                     </form>

@@ -1,0 +1,82 @@
+﻿@model CdMock.Models.Reading.ReadingText
+
+@{
+    ViewData["Title"] = "Yangi Reading Text";
+}
+
+<div class="container-fluid px-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="mb-0">
+            <i class="bi bi-plus-circle me-2"></i>Yangi Reading Text Qo'shish
+        </h2>
+        <a asp-action="Index" class="btn btn-secondary">
+            <i class="bi bi-arrow-left me-1"></i>Orqaga
+        </a>
+    </div>
+
+    @* Debugging info *@
+    @if (ViewBag.MocksCount != null)
+    {
+        <div class="alert alert-info">
+            Topilgan aktiv mocklar soni: @ViewBag.MocksCount
+        </div>
+    }
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="bi bi-exclamation-triangle me-2"></i>@TempData["Error"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <form asp-action="Create" method="post">
+                <div class="mb-3">
+                    <label asp-for="Title" class="form-label"></label>
+                    <input asp-for="Title" class="form-control" placeholder="Reading text sarlavhasi" />
+                    <span asp-validation-for="Title" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="MockId" class="form-label">Mock Exam</label>
+                    <select asp-for="MockId" class="form-select" asp-items="ViewBag.Mocks">
+                        <option value="">-- Mock exam tanlang --</option>
+                    </select>
+                    <span asp-validation-for="MockId" class="text-danger"></span>
+                    
+                    @* Debugging: Mocklar ro'yxatini ko'rsatish *@
+                    @if (ViewBag.Mocks != null)
+                    {
+                        <small class="text-muted">
+                            Dropdown da @((ViewBag.Mocks as SelectList)?.Count() ?? 0) ta mock mavjud
+                        </small>
+                    }
+                    else
+                    {
+                        <small class="text-danger">ViewBag.Mocks null!</small>
+                    }
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Text" class="form-label"></label>
+                    <textarea asp-for="Text" class="form-control" rows="15" 
+                              placeholder="Reading textni kiriting..."></textarea>
+                    <span asp-validation-for="Text" class="text-danger"></span>
+                </div>
+
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-save me-1"></i>Saqlash
+                    </button>
+                    <a asp-action="Index" class="btn btn-secondary">Bekor qilish</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

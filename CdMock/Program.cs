@@ -1,15 +1,28 @@
 using CdMock.Data;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using CdMock.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// 1. DbContext sozlamasi
+// 1. DbContext sozlamasi (EnableRetryOnFailure bilan)
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseSqlServer(
+        builder.Configuration.GetConnectionString("DefaultConnection"),
+        sqlServerOptions => sqlServerOptions.EnableRetryOnFailure(
+            maxRetryCount: 5,
+            maxRetryDelay: TimeSpan.FromSeconds(30),
+            errorNumbersToAdd: null
+        )
+    ));
 
-// 2. Identity sozlamasi (Rollar bilan)
+// Fayl yuklash limitini oshirish
+builder.Services.Configure<FormOptions>(options =>
+{
+    options.MultipartBodyLengthLimit = 52428800; // 50MB
+});
+
+// 2. Identity sozlamasi
 builder.Services.AddDefaultIdentity<IdentityUser>(options =>
 {
     options.SignIn.RequireConfirmedAccount = false;
@@ -23,27 +36,32 @@ builder.Services.AddDefaultIdentity<IdentityUser>(options =>
 .AddEntityFrameworkStores<ApplicationDbContext>();
 
 builder.Services.AddControllersWithViews();
+builder.Services.AddRazorPages();
 
 var app = builder.Build();
 
-// 3. Admin roli va Default Admin foydalanuvchisini yaratish (Seeding)
+// 3. Database va Admin yaratish
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
     try
     {
+        var context = services.GetRequiredService<ApplicationDbContext>();
+
+        // Database yaratish yoki yangilash
+        context.Database.Migrate();
+
         var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
         var userManager = services.GetRequiredService<UserManager<IdentityUser>>();
 
-        Task.Run(async () =>
+        // Admin roli va foydalanuvchisini yaratish
+        var seedTask = Task.Run(async () =>
         {
-            // Admin rolini tekshirish va yaratish
             if (!await roleManager.RoleExistsAsync("Admin"))
             {
                 await roleManager.CreateAsync(new IdentityRole("Admin"));
             }
 
-            // Default Admin foydalanuvchisini tekshirish va yaratish
             string adminName = "admin1";
             string adminPass = "admin1";
 
@@ -63,12 +81,14 @@ using (var scope = app.Services.CreateScope())
                     await userManager.AddToRoleAsync(newAdmin, "Admin");
                 }
             }
-        }).Wait();
+        });
+
+        seedTask.Wait();
     }
     catch (Exception ex)
     {
-        // Xatolikni konsolga chiqarish (ixtiyoriy)
-        Console.WriteLine($"Seeding xatosi: {ex.Message}");
+        var logger = services.GetRequiredService<ILogger<Program>>();
+        logger.LogError(ex, "Database yaratishda xatolik yuz berdi");
     }
 }
 
@@ -90,9 +110,10 @@ app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 
-// 5. Default Route
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Accaunt}/{action=Login}/{id?}");
+
+app.MapRazorPages();
 
 app.Run();

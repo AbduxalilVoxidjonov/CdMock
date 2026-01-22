@@ -4,6 +4,7 @@ using CdMock.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CdMock.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260122221539_Listening1")]
+    partial class Listening1
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -120,66 +123,6 @@ namespace CdMock.Migrations
                     b.HasIndex("MockId");
 
                     b.ToTable("ReadingTexts");
-                });
-
-            modelBuilder.Entity("CdMock.Models.Writing.WritingTask", b =>
-                {
-                    b.Property<int>("TaskId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("TaskId"));
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("MockId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Task1Description")
-                        .HasMaxLength(1000)
-                        .HasColumnType("nvarchar(1000)");
-
-                    b.Property<string>("Task1ImageName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Task1ImagePath")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Task1Instructions")
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
-
-                    b.Property<string>("Task2Description")
-                        .HasMaxLength(1000)
-                        .HasColumnType("nvarchar(1000)");
-
-                    b.Property<string>("Task2ImageName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Task2ImagePath")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Task2Instructions")
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
-
-                    b.Property<int>("TaskType")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("TimeLimit")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.HasKey("TaskId");
-
-                    b.HasIndex("MockId");
-
-                    b.ToTable("WritingTasks");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -406,17 +349,6 @@ namespace CdMock.Migrations
                     b.Navigation("Mocks");
                 });
 
-            modelBuilder.Entity("CdMock.Models.Writing.WritingTask", b =>
-                {
-                    b.HasOne("CdMock.Models.Mocks", "Mocks")
-                        .WithMany("WritingTasks")
-                        .HasForeignKey("MockId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Mocks");
-                });
-
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
@@ -473,8 +405,6 @@ namespace CdMock.Migrations
                     b.Navigation("ListeningAudios");
 
                     b.Navigation("ReadingTexts");
-
-                    b.Navigation("WritingTasks");
                 });
 #pragma warning restore 612, 618
         }

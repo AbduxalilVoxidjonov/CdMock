@@ -1,0 +1,132 @@
+﻿@model CdMock.Models.Listening.ListeningAudio
+
+@{
+    ViewData["Title"] = "Listening Audio O'chirish";
+}
+
+<div class="container-fluid px-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="mb-0 text-danger">
+            <i class="bi bi-exclamation-triangle me-2"></i>Listening Audio O'chirish
+        </h2>
+        <a asp-action="Index" class="btn btn-secondary">
+            <i class="bi bi-arrow-left me-1"></i>Orqaga
+        </a>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card shadow-sm border-danger">
+                <div class="card-body">
+                    <div class="alert alert-danger">
+                        <i class="bi bi-exclamation-triangle me-2"></i>
+                        <strong>Ogohlantirish!</strong> Ushbu listening audioni o'chirishni xohlaysizmi?
+                        <br />
+                        <small>Bu amal bekor qilinmaydi va fayl ham o'chirib tashlanadi!</small>
+                    </div>
+
+                    <dl class="row">
+                        <dt class="col-sm-3">ID:</dt>
+                        <dd class="col-sm-9">#@Model.AudioId</dd>
+
+                        <dt class="col-sm-3">Sarlavha:</dt>
+                        <dd class="col-sm-9"><strong>@Model.Title</strong></dd>
+
+                        @if (!string.IsNullOrEmpty(Model.Description))
+                        {
+                            <dt class="col-sm-3">Tavsif:</dt>
+                            <dd class="col-sm-9">@Model.Description</dd>
+                        }
+
+                        <dt class="col-sm-3">Mock Exam:</dt>
+                        <dd class="col-sm-9">
+                            @if (Model.Mocks != null)
+                            {
+                                <span class="badge bg-info">@Model.Mocks.Name</span>
+                            }
+                        </dd>
+
+                        <dt class="col-sm-3">Fayl:</dt>
+                        <dd class="col-sm-9">
+                            <i class="bi bi-file-earmark-music text-primary me-1"></i>
+                            @Model.FileName
+                        </dd>
+
+                        <dt class="col-sm-3">Hajm:</dt>
+                        <dd class="col-sm-9">@((Model.FileSize / 1024.0 / 1024.0).ToString("F2")) MB</dd>
+
+                        <dt class="col-sm-3">Yuklangan:</dt>
+                        <dd class="col-sm-9">@Model.UploadedAt.ToString("dd.MM.yyyy HH:mm")</dd>
+                    </dl>
+
+                    <hr />
+
+                    <div class="mb-4">
+                        <h6 class="mb-3">
+                            <i class="bi bi-play-circle me-2"></i>Audio Preview
+                        </h6>
+                        <audio controls class="w-100" style="max-width: 500px;">
+                            <source src="@Model.AudioFilePath" type="audio/mpeg">
+                        </audio>
+                    </div>
+
+                    <hr />
+
+                    <form asp-action="Delete" method="post">
+                        <input type="hidden" asp-for="AudioId" />
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-danger">
+                                <i class="bi bi-trash me-1"></i>Ha, O'chirish
+                            </button>
+                            <a asp-action="Index" class="btn btn-secondary">Yo'q, Bekor qilish</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card shadow-sm border-danger">
+                <div class="card-header bg-danger text-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-exclamation-octagon me-2"></i>O'chiriladi
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-unstyled mb-0">
+                        <li class="mb-2">
+                            <i class="bi bi-x-circle text-danger me-2"></i>
+                            Audio fayl serverdan o'chiriladi
+                        </li>
+                        <li class="mb-2">
+                            <i class="bi bi-x-circle text-danger me-2"></i>
+                            Database dan ma'lumot o'chiriladi
+                        </li>
+                        <li class="mb-2">
+                            <i class="bi bi-x-circle text-danger me-2"></i>
+                            Bu amal qaytarib bo'lmaydi
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="card shadow-sm mt-3">
+                <div class="card-header bg-light">
+                    <h6 class="mb-0">
+                        <i class="bi bi-info-circle me-2"></i>Fayl Ma'lumotlari
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <p class="mb-1"><strong>Fayl nomi:</strong></p>
+                    <p class="text-muted small">@Model.FileName</p>
+                    
+                    <p class="mb-1"><strong>Fayl yo'li:</strong></p>
+                    <p class="text-muted small">@Model.AudioFilePath</p>
+                    
+                    <p class="mb-1"><strong>Hajm:</strong></p>
+                    <p class="text-muted small">@((Model.FileSize / 1024.0 / 1024.0).ToString("F2")) MB</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

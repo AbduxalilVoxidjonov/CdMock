@@ -1,0 +1,21 @@
+﻿@model CdMock.Models.Mocks
+
+<h2>@Model.Name</h2>
+<p>@Model.Description</p>
+
+<!-- Test savollari yoki boshqa ma'lumotlar -->
+
+<form asp-action="Test" asp-route-id="@Model.Id" method="post">
+    <div class="mb-3">
+        <label>Javobingiz:</label>
+        <input type="text" name="inputData" class="form-control" />
+    </div>
+    <button type="submit" class="btn btn-primary">Yuborish</button>
+</form>
+
+@if (ViewBag.ReceivedData != null)
+{
+    <div class="alert alert-success mt-3">
+        Qabul qilingan ma'lumot: @ViewBag.ReceivedData
+    </div>
+}

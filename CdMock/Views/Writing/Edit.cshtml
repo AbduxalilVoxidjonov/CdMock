@@ -1,0 +1,280 @@
+﻿@using System.IO
+@model CdMock.Models.Writing.WritingTask
+
+@{
+    ViewData["Title"] = "Writing Task Tahrirlash";
+}
+
+<div class="container-fluid px-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="mb-0">
+            <i class="bi bi-pencil me-2"></i>Writing Task Tahrirlash
+        </h2>
+        <a asp-action="Index" class="btn btn-secondary">
+            <i class="bi bi-arrow-left me-1"></i>Orqaga
+        </a>
+    </div>
+
+    @if (!ViewData.ModelState.IsValid)
+    {
+        <div class="alert alert-danger">
+            <h5>Xatolar:</h5>
+            <ul>
+                @foreach (var modelState in ViewData.ModelState.Values)
+                {
+                    foreach (var error in modelState.Errors)
+                    {
+                        <li>@error.ErrorMessage</li>
+                    }
+                }
+            </ul>
+        </div>
+    }
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <form asp-action="Edit" method="post" enctype="multipart/form-data">
+                <input type="hidden" asp-for="TaskId" />
+                <input type="hidden" asp-for="Task1ImagePath" />
+                <input type="hidden" asp-for="Task1ImageName" />
+                <input type="hidden" asp-for="Task2ImagePath" />
+                <input type="hidden" asp-for="Task2ImageName" />
+                <input type="hidden" asp-for="CreatedAt" />
+
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="Title" class="form-label"></label>
+                        <input asp-for="Title" class="form-control" />
+                        <span asp-validation-for="Title" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-3 mb-3">
+                        <label asp-for="TaskType" class="form-label"></label>
+                        <select asp-for="TaskType" class="form-select" asp-items="Html.GetEnumSelectList<CdMock.Models.Writing.TaskType>()">
+                        </select>
+                        <span asp-validation-for="TaskType" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-3 mb-3">
+                        <label asp-for="MockId" class="form-label">Mock Exam</label>
+                        <select asp-for="MockId" class="form-select" asp-items="ViewBag.Mocks">
+                            <option value="">-- Mock tanlang --</option>
+                        </select>
+                        <span asp-validation-for="MockId" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <hr class="my-4" />
+
+                <!-- TASK 1 Section -->
+                <div class="card bg-light mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <i class="bi bi-1-circle me-2"></i>Task 1
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Task1Instructions" class="form-label"></label>
+                                <textarea asp-for="Task1Instructions" class="form-control" rows="3"></textarea>
+                                <span asp-validation-for="Task1Instructions" class="text-danger"></span>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Task1Description" class="form-label"></label>
+                                <textarea asp-for="Task1Description" class="form-control" rows="3"></textarea>
+                                <span asp-validation-for="Task1Description" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        @if (!string.IsNullOrEmpty(Model.Task1ImagePath))
+                        {
+                            <div class="mb-3">
+                                <label class="form-label">Joriy Task 1 Rasm</label>
+                                <div class="border rounded p-3 bg-white">
+                                    <img src="@Model.Task1ImagePath" alt="Task 1 Image" class="img-fluid rounded" style="max-height: 200px;" />
+                                    <p class="mt-2 mb-0">
+                                        <small class="text-muted">
+                                            <i class="bi bi-file-earmark-image me-1"></i>@Model.Task1ImageName
+                                        </small>
+                                    </p>
+                                </div>
+                            </div>
+                        }
+
+                        <div class="mb-3">
+                            <label for="task1Image" class="form-label">
+                                @if (!string.IsNullOrEmpty(Model.Task1ImagePath))
+                                {
+                                    <span>Yangi Task 1 Rasm (Ixtiyoriy)</span>
+                                }
+                                else
+                                {
+                                    <span>Task 1 Rasm</span>
+                                }
+                            </label>
+                            <input type="file" class="form-control" id="task1Image" name="task1Image"
+                                   accept=".jpg,.jpeg,.png,.gif,.webp" />
+                            <div class="form-text">
+                                @if (!string.IsNullOrEmpty(Model.Task1ImagePath))
+                                {
+                                    <span>Yangi rasm yuklasangiz, eski rasm o'chiriladi.</span>
+                                }
+                                else
+                                {
+                                    <span>Qabul qilinadigan formatlar: JPG, PNG, GIF, WEBP. Maksimal: 5MB</span>
+                                }
+                            </div>
+                            <div id="task1Preview" class="mt-2"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TASK 2 Section -->
+                <div class="card bg-light mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <i class="bi bi-2-circle me-2"></i>Task 2
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Task2Instructions" class="form-label"></label>
+                                <textarea asp-for="Task2Instructions" class="form-control" rows="3"></textarea>
+                                <span asp-validation-for="Task2Instructions" class="text-danger"></span>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Task2Description" class="form-label"></label>
+                                <textarea asp-for="Task2Description" class="form-control" rows="3"></textarea>
+                                <span asp-validation-for="Task2Description" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        @if (!string.IsNullOrEmpty(Model.Task2ImagePath))
+                        {
+                            <div class="mb-3">
+                                <label class="form-label">Joriy Task 2 Rasm</label>
+                                <div class="border rounded p-3 bg-white">
+                                    <img src="@Model.Task2ImagePath" alt="Task 2 Image" class="img-fluid rounded" style="max-height: 200px;" />
+                                    <p class="mt-2 mb-0">
+                                        <small class="text-muted">
+                                            <i class="bi bi-file-earmark-image me-1"></i>@Model.Task2ImageName
+                                        </small>
+                                    </p>
+                                </div>
+                            </div>
+                        }
+
+                        <div class="mb-3">
+                            <label for="task2Image" class="form-label">
+                                @if (!string.IsNullOrEmpty(Model.Task2ImagePath))
+                                {
+                                    <span>Yangi Task 2 Rasm (Ixtiyoriy)</span>
+                                }
+                                else
+                                {
+                                    <span>Task 2 Rasm</span>
+                                }
+                            </label>
+                            <input type="file" class="form-control" id="task2Image" name="task2Image"
+                                   accept=".jpg,.jpeg,.png,.gif,.webp" />
+                            <div class="form-text">
+                                @if (!string.IsNullOrEmpty(Model.Task2ImagePath))
+                                {
+                                    <span>Yangi rasm yuklasangiz, eski rasm o'chiriladi.</span>
+                                }
+                                else
+                                {
+                                    <span>Qabul qilinadigan formatlar: JPG, PNG, GIF, WEBP. Maksimal: 5MB</span>
+                                }
+                            </div>
+                            <div id="task2Preview" class="mt-2"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="TimeLimit" class="form-label"></label>
+                    <input asp-for="TimeLimit" type="number" class="form-control" />
+                    <span asp-validation-for="TimeLimit" class="text-danger"></span>
+                </div>
+
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-save me-1"></i>Saqlash
+                    </button>
+                    <a asp-action="Index" class="btn btn-secondary">Bekor qilish</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    
+    <script>
+        // Task 1 rasm preview
+        document.getElementById('task1Image').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            const preview = document.getElementById('task1Preview');
+            
+            if (file) {
+                const maxSize = 5 * 1024 * 1024; // 5MB
+                if (file.size > maxSize) {
+                    alert('Rasm hajmi 5MB dan oshmasligi kerak!');
+                    e.target.value = '';
+                    preview.innerHTML = '';
+                    return;
+                }
+                
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    preview.innerHTML = `
+                        <div class="border rounded p-2 bg-light">
+                            <p class="mb-2 text-success"><strong>Yangi rasm:</strong></p>
+                            <img src="${event.target.result}" class="img-thumbnail" style="max-width: 300px; max-height: 200px;">
+                        </div>
+                    `;
+                };
+                reader.readAsDataURL(file);
+            } else {
+                preview.innerHTML = '';
+            }
+        });
+
+        // Task 2 rasm preview
+        document.getElementById('task2Image').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            const preview = document.getElementById('task2Preview');
+            
+            if (file) {
+                const maxSize = 5 * 1024 * 1024; // 5MB
+                if (file.size > maxSize) {
+                    alert('Rasm hajmi 5MB dan oshmasligi kerak!');
+                    e.target.value = '';
+                    preview.innerHTML = '';
+                    return;
+                }
+                
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    preview.innerHTML = `
+                        <div class="border rounded p-2 bg-light">
+                            <p class="mb-2 text-success"><strong>Yangi rasm:</strong></p>
+                            <img src="${event.target.result}" class="img-thumbnail" style="max-width: 300px; max-height: 200px;">
+                        </div>
+                    `;
+                };
+                reader.readAsDataURL(file);
+            } else {
+                preview.innerHTML = '';
+            }
+        });
+    </script>
+}

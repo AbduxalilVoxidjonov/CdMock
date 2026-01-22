@@ -1,181 +1,105 @@
-﻿@using CdMock.Models.Mock
-@model IEnumerable<Mocks>
+﻿@model IEnumerable<CdMock.Models.Mocks>
 @{
-    ViewData["Title"] = "Barcha Mock Testlar";
+    ViewData["Title"] = "Mock Ma'lumotlari";
 }
 
-<div class="container py-4">
-    <div class="row mb-5 align-items-center">
-        <div class="col-md-8">
-            <h2 class="fw-bold text-dark mb-1">
-                <i class="bi bi-journal-text text-primary me-2"></i>Mock Testlar
-            </h2>
-            <p class="text-muted mb-0">IELTS darajangizni aniqlash uchun professional testlar to'plami</p>
-        </div>
-        <div class="col-md-4 text-md-end mt-3 mt-md-0">
-            @if (User.IsInRole("Admin"))
-            {
-                <a asp-action="Create" class="btn btn-primary rounded-pill px-4 shadow-sm">
-                    <i class="bi bi-plus-lg me-2"></i>Yangi Mock Qo'shish
-                </a>
-            }
-        </div>
-    </div>
-
-    @if (Model != null && Model.Any())
+<div class="container mt-5">
+    @if (TempData["SuccessMessage"] != null)
     {
-        <div class="row g-4">
-            @foreach (var mock in Model)
-            {
-                <div class="col-md-6 col-lg-4">
-                    <div class="card h-100 shadow-sm border-0 hover-card overflow-hidden">
-                        <div class="card-header border-0 bg-transparent pt-4 px-4 pb-0">
-                            <div class="d-flex justify-content-between align-items-start">
-                                <div class="bg-primary bg-opacity-10 p-2 rounded-3 mb-2">
-                                    <i class="bi bi-book fs-4 text-primary"></i>
-                                </div>
-                                @if (mock.IsActive)
-                                {
-                                    <span class="badge rounded-pill bg-success-subtle text-success border border-success border-opacity-25 px-3">Faol</span>
-                                }
-                                else
-                                {
-                                    <span class="badge rounded-pill bg-secondary-subtle text-secondary border border-secondary border-opacity-25 px-3">Nofaol</span>
-                                }
-                            </div>
-                        </div>
+        <div class="alert alert-success alert-dismissible fade show shadow-sm" role="alert">
+            <i class="bi bi-check-circle-fill me-2"></i>@TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
 
-                        <div class="card-body px-4">
-                            <h5 class="card-title fw-bold mb-2">@mock.Title</h5>
-                            <p class="card-text text-muted small mb-4 line-clamp-2">
-                                @(string.IsNullOrEmpty(mock.Description) ? "Ushbu test uchun tavsif berilmagan." : mock.Description)
-                            </p>
-
-                            <div class="row g-2 mb-4">
-                                <div class="col-6">
-                                    <div class="d-flex align-items-center p-2 bg-light rounded-3">
-                                        <i class="bi bi-clock text-primary me-2"></i>
-                                        <div class="small">
-                                            <div class="text-muted" style="font-size: 0.7rem;">VAQT</div>
-                                            <div class="fw-bold">@mock.TimeLimit m.</div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-6">
-                                    <div class="d-flex align-items-center p-2 bg-light rounded-3">
-                                        <i class="bi bi-layers text-primary me-2"></i>
-                                        <div class="small">
-                                            <div class="text-muted" style="font-size: 0.7rem;">BO'LIMLAR</div>
-                                            <div class="fw-bold">3 ta</div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="d-grid gap-2">
-                                <a asp-action="Details" asp-route-id="@mock.Id" class="btn btn-outline-primary rounded-pill transition-all">
-                                    <i class="bi bi-info-circle me-1"></i> Tafsilotlar
-                                </a>
-                                @if (mock.IsActive)
-                                {
-                                    <a asp-action="TakeTest" asp-route-id="@mock.Id" class="btn btn-primary rounded-pill shadow-sm">
-                                        <i class="bi bi-play-fill me-1"></i> Testni Boshlash
-                                    </a>
-                                }
-                            </div>
-                        </div>
-
+    <div class="card shadow-lg border-0 rounded-3">
+        <div class="card-header bg-primary text-white py-3">
+            <div class="d-flex justify-content-between align-items-center">
+                <h4 class="mb-0"><i class="bi bi-list-ul me-2"></i>Mock Ma'lumotlari</h4>
+                <a asp-action="Create" class="btn btn-light btn-sm">
+                    <i class="bi bi-plus-circle me-1"></i>Yangi Qo'shish
+                </a>
+            </div>
+        </div>
+        <div class="card-body p-0">
+          @if (Model.Any())
+{
+    <div class="table-responsive">
+        <table class="table table-hover mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th class="px-4">@Html.DisplayNameFor(model => model.Name)</th>
+                    <th>@Html.DisplayNameFor(model => model.Description)</th>
+                    <th>@Html.DisplayNameFor(model => model.CreatedAt)</th>
+                    <th class="text-center">@Html.DisplayNameFor(model => model.IsActive)</th>
+                    <th>Boshlash</th>
+                    @if (User.IsInRole("Admin"))
+                    {
+                        <th class="text-center">Amallar</th>    
+                    }
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td class="px-4 fw-bold">@item.Name</td>
+                        <td>@item.Description</td>
+                        <td>@item.CreatedAt.ToString("dd.MM.yyyy HH:mm")</td>
+                        <td class="text-center">
+                            @if (item.IsActive)
+                            {
+                                <span class="badge bg-success">
+                                    <i class="bi bi-check-circle me-1"></i>Aktiv
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-secondary">
+                                    <i class="bi bi-x-circle me-1"></i>Nofaol
+                                </span>
+                            }
+                        </td>
+                        <td class="text-center">
+                            <a asp-action="Test" asp-route-id="@item.Id" 
+                               class="btn btn-info" title="Boshlash">
+                                <i class="bi bi-play-circle"></i>
+                            </a>
+                        </td>
                         @if (User.IsInRole("Admin"))
-                        {
-                            <div class="card-footer bg-light border-0 py-3 px-4">
-                                <div class="row g-2">
-                                    <div class="col-6">
-                                        <a asp-action="Edit" asp-route-id="@mock.Id" class="btn btn-sm btn-light border w-100 rounded-pill">
-                                            <i class="bi bi-pencil-square me-1"></i> Tahrir
-                                        </a>
-                                    </div>
-                                    <div class="col-6">
-                                        <button type="button" class="btn btn-sm btn-light border text-danger w-100 rounded-pill"
-                                                data-bs-toggle="modal" data-bs-target="#deleteModal"
-                                                data-mock-id="@mock.Id" data-mock-title="@mock.Title">
-                                            <i class="bi bi-trash me-1"></i> O'chirish
-                                        </button>
-                                    </div>
+                        { 
+                            <td class="text-center">
+                                <div class="btn-group btn-group-sm" role="group">
+                                    <a asp-action="Details" asp-route-id="@item.Id" 
+                                       class="btn btn-info" title="Ko'rish">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                    <a asp-action="Edit" asp-route-id="@item.Id" 
+                                       class="btn btn-warning" title="Tahrirlash">
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
+                                    <a asp-action="Delete" asp-route-id="@item.Id" 
+                                       class="btn btn-danger" title="O'chirish">
+                                        <i class="bi bi-trash"></i>
+                                    </a>
                                 </div>
-                            </div>
+                            </td>
                         }
-                    </div>
-                </div>
-            }
-        </div>
-    }
-    else
-    {
-        <div class="text-center py-5 shadow-sm rounded-4 bg-white border">
-            <div class="mb-4">
-                <i class="bi bi-clipboard2-x text-light" style="font-size: 5rem;"></i>
-            </div>
-            <h3 class="fw-bold text-dark">Hozircha testlar yo'q</h3>
-            <p class="text-muted mx-auto" style="max-width: 400px;">
-                Tizimda hali hech qanday mock test yaratilmagan. Adminlar tomonidan test qo'shilishini kuting.
-            </p>
-            @if (User.IsInRole("Admin"))
-            {
-                <a asp-action="Create" class="btn btn-primary rounded-pill px-4 mt-2">
-                    <i class="bi bi-plus-lg me-2"></i>Birinchi testni qo'shish
-                </a>
-            }
-        </div>
-    }
-</div>
-
-<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content border-0 shadow">
-            <div class="modal-header border-0 pb-0">
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body text-center pb-4">
-                <div class="text-danger mb-3">
-                    <i class="bi bi-exclamation-octagon shadow-sm p-3 rounded-circle bg-danger bg-opacity-10" style="font-size: 3rem;"></i>
-                </div>
-                <h4 class="fw-bold">Ishonchingiz komilmi?</h4>
-                <p class="text-muted px-4">
-                    Siz <strong id="mock-title" class="text-dark"></strong> testini butunlay o'chirib tashlamoqchisiz. Ushbu amalni ortga qaytarib bo'lmaydi.
-                </p>
-            </div>
-            <div class="modal-footer border-0 pt-0 justify-content-center pb-4">
-                <button type="button" class="btn btn-light px-4 rounded-pill border" data-bs-dismiss="modal">Bekor qilish</button>
-                <form asp-action="Delete" method="post">
-                    @Html.AntiForgeryToken()
-                    <input type="hidden" name="id" id="delete-mock-id" />
-                    <button type="submit" class="btn btn-danger px-4 rounded-pill shadow-sm">
-                        <i class="bi bi-trash me-1"></i> Tasdiqlash
-                    </button>
-                </form>
-            </div>
-        </div>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+else
+{
+    <div class="text-center py-5">
+        <i class="bi bi-inbox display-1 text-muted"></i>
+        <p class="text-muted mt-3">Hozircha ma'lumot yo'q</p>
+        <a asp-action="Create" class="btn btn-primary">
+            <i class="bi bi-plus-circle me-1"></i>Birinchi ma'lumotni qo'shish
+        </a>
+    </div>
+}
     </div>
 </div>
-
-<style>
-    .hover-card {
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-
-        .hover-card:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 15px 35px rgba(0,0,0,0.12) !important;
-        }
-
-    .line-clamp-2 {
-        display: -webkit-box;
-        -webkit-line-clamp: 2;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
-    }
-
-    .transition-all {
-        transition: all 0.2s ease;
-    }
-</style>

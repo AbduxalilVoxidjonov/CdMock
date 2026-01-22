@@ -4,6 +4,7 @@ using CdMock.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CdMock.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260122220050_Reading2")]
+    partial class Reading2
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -21,50 +24,6 @@ namespace CdMock.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
-
-            modelBuilder.Entity("CdMock.Models.Listening.ListeningAudio", b =>
-                {
-                    b.Property<int>("AudioId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("AudioId"));
-
-                    b.Property<string>("AudioFilePath")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Description")
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
-
-                    b.Property<int?>("Duration")
-                        .HasColumnType("int");
-
-                    b.Property<string>("FileName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<long>("FileSize")
-                        .HasColumnType("bigint");
-
-                    b.Property<int>("MockId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.Property<DateTime>("UploadedAt")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("AudioId");
-
-                    b.HasIndex("MockId");
-
-                    b.ToTable("ListeningAudios");
-                });
 
             modelBuilder.Entity("CdMock.Models.Mocks", b =>
                 {
@@ -120,66 +79,6 @@ namespace CdMock.Migrations
                     b.HasIndex("MockId");
 
                     b.ToTable("ReadingTexts");
-                });
-
-            modelBuilder.Entity("CdMock.Models.Writing.WritingTask", b =>
-                {
-                    b.Property<int>("TaskId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("TaskId"));
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("MockId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Task1Description")
-                        .HasMaxLength(1000)
-                        .HasColumnType("nvarchar(1000)");
-
-                    b.Property<string>("Task1ImageName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Task1ImagePath")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Task1Instructions")
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
-
-                    b.Property<string>("Task2Description")
-                        .HasMaxLength(1000)
-                        .HasColumnType("nvarchar(1000)");
-
-                    b.Property<string>("Task2ImageName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Task2ImagePath")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Task2Instructions")
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
-
-                    b.Property<int>("TaskType")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("TimeLimit")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.HasKey("TaskId");
-
-                    b.HasIndex("MockId");
-
-                    b.ToTable("WritingTasks");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -384,32 +283,10 @@ namespace CdMock.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("CdMock.Models.Listening.ListeningAudio", b =>
-                {
-                    b.HasOne("CdMock.Models.Mocks", "Mocks")
-                        .WithMany("ListeningAudios")
-                        .HasForeignKey("MockId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Mocks");
-                });
-
             modelBuilder.Entity("CdMock.Models.Reading.ReadingText", b =>
                 {
                     b.HasOne("CdMock.Models.Mocks", "Mocks")
                         .WithMany("ReadingTexts")
-                        .HasForeignKey("MockId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Mocks");
-                });
-
-            modelBuilder.Entity("CdMock.Models.Writing.WritingTask", b =>
-                {
-                    b.HasOne("CdMock.Models.Mocks", "Mocks")
-                        .WithMany("WritingTasks")
                         .HasForeignKey("MockId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -470,11 +347,7 @@ namespace CdMock.Migrations
 
             modelBuilder.Entity("CdMock.Models.Mocks", b =>
                 {
-                    b.Navigation("ListeningAudios");
-
                     b.Navigation("ReadingTexts");
-
-                    b.Navigation("WritingTasks");
                 });
 #pragma warning restore 612, 618
         }

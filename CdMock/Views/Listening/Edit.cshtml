@@ -1,0 +1,163 @@
+﻿@model CdMock.Models.Listening.ListeningAudio
+
+@{
+    ViewData["Title"] = "Listening Audio Tahrirlash";
+}
+
+<div class="container-fluid px-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="mb-0">
+            <i class="bi bi-pencil me-2"></i>Listening Audio Tahrirlash
+        </h2>
+        <a asp-action="Index" class="btn btn-secondary">
+            <i class="bi bi-arrow-left me-1"></i>Orqaga
+        </a>
+    </div>
+
+    @if (!ViewData.ModelState.IsValid)
+    {
+        <div class="alert alert-danger">
+            <h5>Xatolar:</h5>
+            <ul>
+                @foreach (var modelState in ViewData.ModelState.Values)
+                {
+                    foreach (var error in modelState.Errors)
+                    {
+                        <li>@error.ErrorMessage</li>
+                    }
+                }
+            </ul>
+        </div>
+    }
+
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <form asp-action="Edit" method="post" enctype="multipart/form-data">
+                        <input type="hidden" asp-for="AudioId" />
+                        <input type="hidden" asp-for="AudioFilePath" />
+                        <input type="hidden" asp-for="FileName" />
+                        <input type="hidden" asp-for="FileSize" />
+                        <input type="hidden" asp-for="UploadedAt" />
+
+                        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                        <div class="mb-3">
+                            <label asp-for="Title" class="form-label"></label>
+                            <input asp-for="Title" class="form-control" />
+                            <span asp-validation-for="Title" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Description" class="form-label"></label>
+                            <textarea asp-for="Description" class="form-control" rows="3"></textarea>
+                            <span asp-validation-for="Description" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="MockId" class="form-label">Mock Exam</label>
+                            <select asp-for="MockId" class="form-select" asp-items="ViewBag.Mocks">
+                                <option value="">-- Mock exam tanlang --</option>
+                            </select>
+                            <span asp-validation-for="MockId" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Duration" class="form-label"></label>
+                            <input asp-for="Duration" type="number" class="form-control" />
+                            <span asp-validation-for="Duration" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Joriy Audio Fayl</label>
+                            <div class="border rounded p-3 bg-light">
+                                <p class="mb-2">
+                                    <i class="bi bi-file-earmark-music text-primary me-2"></i>
+                                    <strong>@Model.FileName</strong>
+                                </p>
+                                <audio controls class="w-100" style="max-width: 500px;">
+                                    <source src="@Model.AudioFilePath" type="audio/mpeg">
+                                </audio>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="audioFile" class="form-label">Yangi Audio Fayl (Ixtiyoriy)</label>
+                            <input type="file" class="form-control" id="audioFile" name="audioFile"
+                                   accept=".mp3,.wav,.m4a,.ogg" />
+                            <div class="form-text">
+                                Agar yangi fayl yuklamasangiz, eski fayl saqlanib qoladi.
+                                Qabul qilinadigan formatlar: MP3, WAV, M4A, OGG
+                            </div>
+                        </div>
+
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-save me-1"></i>Saqlash
+                            </button>
+                            <a asp-action="Index" class="btn btn-secondary">Bekor qilish</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card shadow-sm">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">
+                        <i class="bi bi-info-circle me-2"></i>Joriy Ma'lumotlar
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-unstyled mb-0">
+                        <li class="mb-2">
+                            <strong>ID:</strong> #@Model.AudioId
+                        </li>
+                        <li class="mb-2">
+                            <strong>Fayl:</strong> @Model.FileName
+                        </li>
+                        <li class="mb-2">
+                            <strong>Hajm:</strong> @((Model.FileSize / 1024.0 / 1024.0).ToString("F2")) MB
+                        </li>
+                        <li class="mb-2">
+                            <strong>Yuklangan:</strong> @Model.UploadedAt.ToString("dd.MM.yyyy HH:mm")
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="card shadow-sm mt-3">
+                <div class="card-header bg-warning">
+                    <h6 class="mb-0">
+                        <i class="bi bi-exclamation-triangle me-2"></i>Ogohlantirish
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <p class="mb-0 small">
+                        Yangi fayl yuklasangiz, eski fayl avtomatik o'chirib tashlanadi.
+                        Iltimos, ehtiyot bo'ling!
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    
+    <script>
+        document.getElementById('audioFile').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const maxSize = 50 * 1024 * 1024; // 50MB
+                if (file.size > maxSize) {
+                    alert('Fayl hajmi 50MB dan oshmasligi kerak!');
+                    e.target.value = '';
+                }
+            }
+        });
+    </script>
+}
