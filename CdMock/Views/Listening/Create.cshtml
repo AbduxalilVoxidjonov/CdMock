@@ -1,0 +1,116 @@
+﻿@using System.IO
+@model CdMock.Models.Listening.ListeningAudio
+
+@{
+    ViewData["Title"] = "Yangi Listening Audio";
+}
+
+<div class="container-fluid px-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="mb-0">
+            <i class="bi bi-upload me-2"></i>Yangi Listening Audio Yuklash
+        </h2>
+        <a asp-action="Index" class="btn btn-secondary">
+            <i class="bi bi-arrow-left me-1"></i>Orqaga
+        </a>
+    </div>
+
+    @if (!ViewData.ModelState.IsValid)
+    {
+        <div class="alert alert-danger">
+            <h5>Xatolar:</h5>
+            <ul>
+                @foreach (var modelState in ViewData.ModelState.Values)
+                {
+                    foreach (var error in modelState.Errors)
+                    {
+                        <li>@error.ErrorMessage</li>
+                    }
+                }
+            </ul>
+        </div>
+    }
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="bi bi-exclamation-triangle me-2"></i>@TempData["Error"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <form asp-action="Create" method="post" enctype="multipart/form-data">
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                <div class="mb-3">
+                    <label asp-for="Title" class="form-label"></label>
+                    <input asp-for="Title" class="form-control" placeholder="Audio sarlavhasi" />
+                    <span asp-validation-for="Title" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Description" class="form-label"></label>
+                    <textarea asp-for="Description" class="form-control" rows="3"
+                              placeholder="Qisqacha tavsif (ixtiyoriy)"></textarea>
+                    <span asp-validation-for="Description" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="MockId" class="form-label">Mock Exam *</label>
+                    <select asp-for="MockId" class="form-select" asp-items="ViewBag.Mocks">
+                        <option value="">-- Mock exam tanlang --</option>
+                    </select>
+                    <span asp-validation-for="MockId" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label for="audioFile" class="form-label">Audio Fayl *</label>
+                    <input type="file" class="form-control" id="audioFile" name="audioFile"
+                           accept=".mp3,.wav,.m4a,.ogg" required />
+                    <div class="form-text">
+                        Qabul qilinadigan formatlar: MP3, WAV, M4A, OGG. Maksimal hajm: 50MB
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Duration" class="form-label"></label>
+                    <input asp-for="Duration" type="number" class="form-control"
+                           placeholder="Davomiyligi (soniyalarda, ixtiyoriy)" />
+                    <span asp-validation-for="Duration" class="text-danger"></span>
+                </div>
+
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-upload me-1"></i>Yuklash
+                    </button>
+                    <a asp-action="Index" class="btn btn-secondary">Bekor qilish</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    
+    <script>
+        // Fayl hajmini tekshirish (50MB)
+        document.getElementById('audioFile').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const maxSize = 50 * 1024 * 1024; // 50MB
+                if (file.size > maxSize) {
+                    alert('Fayl hajmi 50MB dan oshmasligi kerak!');
+                    e.target.value = '';
+                    return;
+                }
+                
+                // Fayl ma'lumotini ko'rsatish
+                const sizeMB = (file.size / 1024 / 1024).toFixed(2);
+                console.log(`Tanlangan fayl: ${file.name} (${sizeMB} MB)`);
+            }
+        });
+    </script>
+}

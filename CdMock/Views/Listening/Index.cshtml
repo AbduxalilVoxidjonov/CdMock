@@ -1,5 +1,86 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
+﻿@model IEnumerable<CdMock.Models.Listening.ListeningAudio>
+
 @{
+    ViewData["Title"] = "Listening Audios";
 }
+
+<div class="container-fluid px-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="mb-0">
+            <i class="bi bi-headphones me-2"></i>Listening Audios
+        </h2>
+        <a asp-action="Create" class="btn btn-primary">
+            <i class="bi bi-plus-circle me-1"></i>Yangi Audio Yuklash
+        </a>
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="bi bi-check-circle me-2"></i>@TempData["Success"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    @if (Model.Any())
+    {
+        <div class="card shadow-sm">
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th class="px-4">ID</th>
+                                <th>Title</th>
+                                <th>Fayl</th>
+                                <th>Mock</th>
+                                <th class="text-center">Amallar</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td class="px-4">#@item.AudioId</td>
+                                    <td><strong>@item.Title</strong></td>
+                                    <td>@item.FileName</td>
+                                    <td>
+                                        @if (item.Mocks != null)
+                                        {
+                                            <span class="badge bg-info">@item.Mocks.Name</span>
+                                        }
+                                    </td>
+                                    <td class="text-center">
+                                        <div class="btn-group btn-group-sm">
+                                            <a asp-action="Details" asp-route-id="@item.AudioId" class="btn btn-info">
+                                                <i class="bi bi-eye"></i>
+                                            </a>
+                                            <a asp-action="Edit" asp-route-id="@item.AudioId" class="btn btn-warning">
+                                                <i class="bi bi-pencil"></i>
+                                            </a>
+                                            <a asp-action="Delete" asp-route-id="@item.AudioId" class="btn btn-danger">
+                                                <i class="bi bi-trash"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="card shadow-sm">
+            <div class="card-body text-center py-5">
+                <i class="bi bi-headphones display-1 text-muted"></i>
+                <p class="text-muted mt-3 mb-4">Hozircha listening audio yo'q</p>
+                <a asp-action="Create" class="btn btn-primary">
+                    <i class="bi bi-plus-circle me-1"></i>Birinchi Audioni Yuklash
+                </a>
+            </div>
+        </div>
+    }
+</div>

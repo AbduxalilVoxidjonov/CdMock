@@ -1,183 +1,106 @@
-﻿@using CdMock.Models.Mock
-@model IEnumerable<Reading>
+﻿@model IEnumerable<CdMock.Models.Reading.ReadingText>
+
 @{
-    ViewData["Title"] = "Reading Bo'limini Boshqarish";
-    var mockId = ViewBag.MockId;
+    ViewData["Title"] = "Reading Texts";
 }
 
-<div class="container-fluid py-4">
-    <div class="row mb-4">
-        <div class="col-md-12">
-            <nav aria-label="breadcrumb">
-                <ol class="breadcrumb">
-                    <li class="breadcrumb-item">
-                        <a asp-controller="Mock" asp-action="Index">Mock Testlar</a>
-                    </li>
-                    <li class="breadcrumb-item">
-                        <a asp-controller="Mock" asp-action="Details" asp-route-id="@mockId">Mock Details</a>
-                    </li>
-                    <li class="breadcrumb-item active">Reading</li>
-                </ol>
-            </nav>
-
-            <div class="d-flex justify-content-between align-items-center">
-                <div>
-                    <h2 class="fw-bold mb-1">📖 Reading Passages</h2>
-                    <p class="text-muted">Reading bo'limini boshqarish</p>
-                </div>
-                <a asp-action="AddPassage" asp-route-mockId="@mockId"
-                   class="btn btn-primary rounded-pill px-4">
-                    <i class="bi bi-plus-circle me-2"></i>Yangi Passage
-                </a>
-            </div>
-        </div>
+<div class="container-fluid px-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="mb-0">
+            <i class="bi bi-book me-2"></i>Reading Texts
+        </h2>
+        <a asp-action="Create" class="btn btn-primary">
+            <i class="bi bi-plus-circle me-1"></i>Yangi Text Qo'shish
+        </a>
     </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="bi bi-check-circle me-2"></i>@TempData["Success"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
 
     @if (Model.Any())
     {
-        @foreach (var reading in Model.OrderBy(r => r.OrderNumber))
-        {
-            <div class="card shadow-sm border-0 mb-4">
-                <div class="card-header bg-gradient text-white d-flex justify-content-between align-items-center">
-                    <div>
-                        <h5 class="mb-0">@reading.Title</h5>
-                        <small>Passage @reading.OrderNumber</small>
-                    </div>
-                    <div>
-                        <span class="badge bg-white text-dark">
-                            @(reading.Questions?.Count ?? 0) savol
-                        </span>
-                    </div>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-8">
-                            <div class="passage-preview bg-light p-3 rounded" style="max-height: 200px; overflow-y: auto;">
-                                @Html.Raw(reading.PassageText.Substring(0, Math.Min(500, reading.PassageText.Length)))...
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <h6 class="fw-bold mb-3">Savollar:</h6>
-                            @if (reading.Questions?.Any() == true)
+        <div class="card shadow-sm">
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th class="px-4">ID</th>
+                                <th>Title</th>
+                                <th>Text (Qisqa ko'rinish)</th>
+                                <th>Mock Exam</th>
+                                <th class="text-center">Amallar</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model)
                             {
-                                <ul class="list-group list-group-flush">
-                                    @foreach (var question in reading.Questions.OrderBy(q => q.OrderNumber).Take(5))
-                                    {
-                                        <li class="list-group-item px-0 py-1">
-                                            <small>
-                                                <i class="bi bi-check-circle text-success me-1"></i>
-                                                Savol @question.OrderNumber (@question.QuestionType)
-                                            </small>
-                                        </li>
-                                    }
-                                    @if (reading.Questions.Count > 5)
-                                    {
-                                        <li class="list-group-item px-0 py-1">
-                                            <small class="text-muted">
-                                                va yana @(reading.Questions.Count - 5) ta...
-                                            </small>
-                                        </li>
-                                    }
-                                </ul>
+                                <tr>
+                                    <td class="px-4 fw-bold">#@item.TextId</td>
+                                    <td>
+                                        <strong>@item.Title</strong>
+                                    </td>
+                                    <td>
+                                        @if (item.Text.Length > 30)
+                                        {
+                                            <span>@item.Text.Substring(0, 30)...</span>
+                                        }
+                                        else
+                                        {
+                                            <span>@item.Text</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        @if (item.Mocks != null)
+                                        {
+                                            <span class="badge bg-info">
+                                                <i class="bi bi-journal-text me-1"></i>@item.Mocks.Name
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-secondary">Mock topilmadi</span>
+                                        }
+                                    </td>
+                                    <td class="text-center">
+                                        <div class="btn-group btn-group-sm" role="group">
+                                            <a asp-action="Details" asp-route-id="@item.TextId" 
+                                               class="btn btn-info" title="Ko'rish">
+                                                <i class="bi bi-eye"></i>
+                                            </a>
+                                            <a asp-action="Edit" asp-route-id="@item.TextId" 
+                                               class="btn btn-warning" title="Tahrirlash">
+                                                <i class="bi bi-pencil"></i>
+                                            </a>
+                                            <a asp-action="Delete" asp-route-id="@item.TextId" 
+                                               class="btn btn-danger" title="O'chirish">
+                                                <i class="bi bi-trash"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
                             }
-                            else
-                            {
-                                <p class="text-muted small">Hozircha savol yo'q</p>
-                            }
-
-                            <div class="d-grid gap-2 mt-3">
-                                <a asp-action="AddQuestion" asp-route-readingId="@reading.Id"
-                                   class="btn btn-sm btn-outline-primary">
-                                    <i class="bi bi-plus-circle me-1"></i>Savol Qo'shish
-                                </a>
-                                <button type="button"
-                                        class="btn btn-sm btn-outline-secondary"
-                                        data-bs-toggle="modal"
-                                        data-bs-target="#editPassageModal"
-                                        data-reading-id="@reading.Id"
-                                        data-reading-title="@reading.Title">
-                                    <i class="bi bi-pencil me-1"></i>Tahrirlash
-                                </button>
-                                <button type="button"
-                                        class="btn btn-sm btn-outline-danger"
-                                        data-bs-toggle="modal"
-                                        data-bs-target="#deletePassageModal"
-                                        data-reading-id="@reading.Id"
-                                        data-reading-title="@reading.Title">
-                                    <i class="bi bi-trash me-1"></i>O'chirish
-                                </button>
-                            </div>
-                        </div>
-                    </div>
+                        </tbody>
+                    </table>
                 </div>
             </div>
-        }
+        </div>
     }
     else
     {
-        <div class="alert alert-info text-center py-5">
-            <i class="bi bi-info-circle fs-1 d-block mb-3"></i>
-            <h4>Hozircha passage qo'shilmagan</h4>
-            <p class="text-muted mb-4">Reading bo'limini qo'shish uchun "Yangi Passage" tugmasini bosing</p>
-            <a asp-action="AddPassage" asp-route-mockId="@mockId"
-               class="btn btn-primary rounded-pill px-4">
-                <i class="bi bi-plus-circle me-2"></i>Birinchi Passage Qo'shish
-            </a>
+        <div class="card shadow-sm">
+            <div class="card-body text-center py-5">
+                <i class="bi bi-inbox display-1 text-muted"></i>
+                <p class="text-muted mt-3 mb-4">Hozircha reading text yo'q</p>
+                <a asp-action="Create" class="btn btn-primary">
+                    <i class="bi bi-plus-circle me-1"></i>Birinchi Textni Qo'shish
+                </a>
+            </div>
         </div>
     }
 </div>
-
-<!-- Delete Passage Modal -->
-<div class="modal fade" id="deletePassageModal" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header border-0">
-                <h5 class="modal-title">
-                    <i class="bi bi-exclamation-triangle text-danger me-2"></i>Passage O'chirish
-                </h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <p>Siz <strong id="passage-title"></strong> ni o'chirmoqchisiz.</p>
-                <div class="alert alert-warning">
-                    <i class="bi bi-exclamation-circle me-2"></i>
-                    Bu passage ga tegishli barcha savollar ham o'chiriladi!
-                </div>
-            </div>
-            <div class="modal-footer border-0">
-                <button type="button" class="btn btn-secondary rounded-pill" data-bs-dismiss="modal">
-                    Bekor qilish
-                </button>
-                <form asp-action="DeletePassage" method="post">
-                    <input type="hidden" name="id" id="delete-passage-id" />
-                    <button type="submit" class="btn btn-danger rounded-pill">
-                        <i class="bi bi-trash me-1"></i>O'chirish
-                    </button>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
-
-<style>
-    .bg-gradient {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    }
-
-    .passage-preview {
-        line-height: 1.6;
-        font-size: 0.95rem;
-    }
-</style>
-
-<script>
-    const deleteModal = document.getElementById('deletePassageModal');
-    deleteModal?.addEventListener('show.bs.modal', function (event) {
-        const button = event.relatedTarget;
-        const readingId = button.getAttribute('data-reading-id');
-        const readingTitle = button.getAttribute('data-reading-title');
-
-        document.getElementById('delete-passage-id').value = readingId;
-        document.getElementById('passage-title').textContent = readingTitle;
-    });
-</script>

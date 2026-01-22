@@ -1,162 +1,55 @@
-﻿@model CdMock.Models.Mock.Mocks
+﻿@model CdMock.Models.Mocks
 @{
-    ViewData["Title"] = Model.Title;
+    ViewData["Title"] = "Tafsilotlar";
 }
 
-<div class="container py-4">
-    <div class="card shadow-sm border-0 mb-4 overflow-hidden">
-        <div class="card-body p-0">
-            <div class="p-4 bg-white">
-                <nav aria-label="breadcrumb">
-                    <ol class="breadcrumb mb-2">
-                        <li class="breadcrumb-item"><a asp-action="Index" class="text-decoration-none">Mock Testlar</a></li>
-                        <li class="breadcrumb-item active">@Model.Title</li>
-                    </ol>
-                </nav>
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-lg border-0 rounded-3">
+                <div class="card-header bg-info text-white text-center py-3">
+                    <h4 class="mb-0"><i class="bi bi-info-circle me-2"></i>Ma'lumot Tafsilotlari</h4>
+                </div>
+                <div class="card-body p-4">
+                    <dl class="row">
+                        <dt class="col-sm-4 fw-bold">@Html.DisplayNameFor(model => model.Name):</dt>
+                        <dd class="col-sm-8">@Model.Name</dd>
 
-                <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
-                    <div>
-                        <h2 class="fw-bold text-dark mb-1">@Model.Title</h2>
-                        <p class="text-muted mb-0"><i class="bi bi-info-circle me-1"></i> @Model.Description</p>
-                    </div>
-                    <div class="d-flex gap-2">
-                        @if (User.IsInRole("Admin"))
-                        {
-                            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-outline-secondary rounded-pill">
-                                <i class="bi bi-gear me-1"></i> Sozlamalar
-                            </a>
-                        }
-                        @if (Model.IsActive)
-                        {
-                            <a asp-action="TakeTest" asp-route-id="@Model.Id" class="btn btn-primary rounded-pill px-4 shadow-sm">
-                                <i class="bi bi-play-fill me-1"></i> Testni Boshlash
-                            </a>
-                        }
-                        else
-                        {
-                            <button class="btn btn-secondary rounded-pill px-4" disabled>
-                                <i class="bi bi-lock-fill me-1"></i> Hozircha yopiq
-                            </button>
-                        }
+                        <dt class="col-sm-4 fw-bold">@Html.DisplayNameFor(model => model.Description):</dt>
+                        <dd class="col-sm-8">@Model.Description</dd>
+
+                        <dt class="col-sm-4 fw-bold">@Html.DisplayNameFor(model => model.CreatedAt):</dt>
+                        <dd class="col-sm-8">@Model.CreatedAt.ToString("dd.MM.yyyy HH:mm")</dd>
+
+                        <dt class="col-sm-4 fw-bold">@Html.DisplayNameFor(model => model.IsActive):</dt>
+                        <dd class="col-sm-8">
+                            @if (Model.IsActive)
+                            {
+                                <span class="badge bg-success fs-6">
+                                    <i class="bi bi-check-circle me-1"></i>Aktiv
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-secondary fs-6">
+                                    <i class="bi bi-x-circle me-1"></i>Nofaol
+                                </span>
+                            }
+                        </dd>
+                    </dl>
+
+                    <hr class="my-4">
+
+                    <div class="d-grid gap-2">
+                        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning btn-lg">
+                            <i class="bi bi-pencil me-1"></i>Tahrirlash
+                        </a>
+                        <a asp-action="Index" class="btn btn-outline-secondary">
+                            <i class="bi bi-arrow-left me-1"></i>Orqaga qaytish
+                        </a>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-
-    <div class="row g-4 mb-4">
-        <div class="col-6 col-md-4">
-            <div class="card shadow-sm border-0 text-center h-100 py-3">
-                <div class="text-primary mb-2"><i class="bi bi-clock-history fs-3"></i></div>
-                <div class="small text-muted text-uppercase fw-semibold">Vaqt</div>
-                <div class="h5 fw-bold mb-0">@Model.TimeLimit daqiqa</div>
-            </div>
-        </div>
-        <div class="col-6 col-md-4">
-            <div class="card shadow-sm border-0 text-center h-100 py-3">
-                <div class="text-success mb-2"><i class="bi bi-calendar-event fs-3"></i></div>
-                <div class="small text-muted text-uppercase fw-semibold">Sana</div>
-                <div class="h5 fw-bold mb-0">@Model.CreatedDate.ToString("dd.MM.yyyy")</div>
-            </div>
-        </div>
-        <div class="col-12 col-md-4">
-            <div class="card shadow-sm border-0 text-center h-100 py-3">
-                <div class="text-info mb-2"><i class="bi bi-person-check fs-3"></i></div>
-                <div class="small text-muted text-uppercase fw-semibold">Urinishlar</div>
-                <div class="h5 fw-bold mb-0">@(Model.UserMockResults?.Count ?? 0) marta topshirilgan</div>
-            </div>
-        </div>
-    </div>
-
-    <div class="row g-4 mb-4">
-        <div class="col-lg-4">
-            <div class="card h-100 shadow-sm border-0 overflow-hidden">
-                <div class="card-header border-0 bg-primary text-white py-3">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <h5 class="mb-0 fw-bold"><i class="bi bi-book-half me-2"></i>Reading</h5>
-                        <span class="badge bg-white text-primary">@(Model.Readings?.Count ?? 0)</span>
-                    </div>
-                </div>
-                <div class="card-body">
-                    @if (Model.Readings?.Any() == true)
-                    {
-                        @foreach (var reading in Model.Readings.OrderBy(r => r.OrderNumber))
-                        {
-                            <div class="d-flex align-items-center mb-3 p-2 rounded bg-light border-start border-primary border-3">
-                                <div class="flex-grow-1">
-                                    <div class="fw-bold small text-truncate" style="max-width: 180px;">@reading.Title</div>
-                                    <div class="text-muted" style="font-size: 0.75rem;">@(reading.Questions?.Count ?? 0) ta savol</div>
-                                </div>
-                                @if (User.IsInRole("Admin"))
-                                {
-                                    <a asp-controller="Reading" asp-action="EditPassage" asp-route-id="@reading.Id" class="btn btn-sm text-primary p-1"><i class="bi bi-pencil-square"></i></a>
-                                }
-                            </div>
-                        }
-                    }
-                    else
-                    {
-                        <div class="text-center py-4">
-                            <i class="bi bi-file-earmark-plus fs-2 text-light"></i>
-                            <p class="small text-muted mt-2">Savollar qo'shilmagan</p>
-                        </div>
-                    }
-                </div>
-                @if (User.IsInRole("Admin"))
-                {
-                    <div class="card-footer bg-white border-0">
-                        <a asp-controller="Reading" asp-action="AddPassage" asp-route-mockId="@Model.Id" class="btn btn-outline-primary btn-sm w-100 rounded-pill">
-                            <i class="bi bi-plus-lg me-1"></i> Passage qo'shish
-                        </a>
-                    </div>
-                }
-            </div>
-        </div>
-
-        <div class="col-lg-4">
-            <div class="card h-100 shadow-sm border-0 overflow-hidden">
-                <div class="card-header border-0 bg-danger text-white py-3">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <h5 class="mb-0 fw-bold"><i class="bi bi-headphones me-2"></i>Listening</h5>
-                        <span class="badge bg-white text-danger">@(Model.Listenings?.Count ?? 0)</span>
-                    </div>
-                </div>
-                <div class="card-body">
-                    @if (Model.Listenings?.Any() == true)
-                    {
-                        @foreach (var listening in Model.Listenings.OrderBy(l => l.OrderNumber))
-                        {
-                            <div class="d-flex align-items-center mb-3 p-2 rounded bg-light border-start border-danger border-3">
-                                <div class="flex-grow-1">
-                                    <div class="fw-bold small text-truncate" style="max-width: 180px;">@listening.Title</div>
-                                    <div class="text-muted" style="font-size: 0.75rem;">@(listening.Questions?.Count ?? 0) ta savol</div>
-                                </div>
-                                @if (User.IsInRole("Admin"))
-                                {
-                                    <a asp-controller="Listening" asp-action="Edit" asp-route-id="@listening.Id" class="btn btn-sm text-danger p-1"><i class="bi bi-pencil-square"></i></a>
-                                }
-                            </div>
-                        }
-                    }
-                    else
-                    {
-                        <div class="text-center py-4">
-                            <i class="bi bi-mic-mute fs-2 text-light"></i>
-                            <p class="small text-muted mt-2">Audio qo'shilmagan</p>
-                        </div>
-                    }
-                </div>
-                @if (User.IsInRole("Admin"))
-                {
-                    <div class="card-footer bg-white border-0">
-                        <a asp-controller="Listening" asp-action="Create" asp-route-mockId="@Model.Id" class="btn btn-outline-danger btn-sm w-100 rounded-pill">
-                            <i class="bi bi-plus-lg me-1"></i> Audio qo'shish
-                        </a>
-                    </div>
-                }
-            </div>
-        </div>
-
-        <div class="col-lg-4">
-            <div class="card h-100 shadow-sm border-0 overflow-hidden">
-                <div class
+</div>

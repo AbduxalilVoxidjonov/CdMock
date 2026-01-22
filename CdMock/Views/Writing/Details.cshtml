@@ -1,0 +1,359 @@
+﻿@using System.IO
+@model CdMock.Models.Writing.WritingTask
+
+@{
+    ViewData["Title"] = "Writing Task Tafsilotlari";
+}
+
+<div class="container-fluid px-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="mb-0">
+            <i class="bi bi-file-text me-2"></i>Writing Task Tafsilotlari
+        </h2>
+        <a asp-action="Index" class="btn btn-secondary">
+            <i class="bi bi-arrow-left me-1"></i>Orqaga
+        </a>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <!-- Asosiy Ma'lumotlar -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-body">
+                    <dl class="row">
+                        <dt class="col-sm-3">ID:</dt>
+                        <dd class="col-sm-9">#@Model.TaskId</dd>
+
+                        <dt class="col-sm-3">Sarlavha:</dt>
+                        <dd class="col-sm-9">
+                            <h4>@Model.Title</h4>
+                        </dd>
+
+                        <dt class="col-sm-3">Task Turi:</dt>
+                        <dd class="col-sm-9">
+                            @if (Model.TaskType == CdMock.Models.Writing.TaskType.Task1)
+                            {
+                                <span class="badge bg-primary fs-6">
+                                    <i class="bi bi-1-circle me-1"></i>Task 1
+                                </span>
+                            }
+                            else if (Model.TaskType == CdMock.Models.Writing.TaskType.Task2)
+                            {
+                                <span class="badge bg-success fs-6">
+                                    <i class="bi bi-2-circle me-1"></i>Task 2
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-info fs-6">
+                                    <i class="bi bi-1-circle me-1"></i>
+                                    <i class="bi bi-2-circle me-1"></i>Ikkala Task
+                                </span>
+                            }
+                        </dd>
+
+                        <dt class="col-sm-3">Mock Exam:</dt>
+                        <dd class="col-sm-9">
+                            @if (Model.Mocks != null)
+                            {
+                                <span class="badge bg-info fs-6">
+                                    <i class="bi bi-journal-text me-1"></i>@Model.Mocks.Name
+                                </span>
+                            }
+                        </dd>
+
+                        @if (Model.TimeLimit.HasValue)
+                        {
+                            <dt class="col-sm-3">Vaqt cheklovi:</dt>
+                            <dd class="col-sm-9">
+                                <i class="bi bi-clock text-warning me-2"></i>
+                                <strong>@Model.TimeLimit daqiqa</strong>
+                            </dd>
+                        }
+
+                        <dt class="col-sm-3">Yaratilgan:</dt>
+                        <dd class="col-sm-9">
+                            <i class="bi bi-calendar me-2"></i>
+                            @Model.CreatedAt.ToString("dd.MM.yyyy HH:mm")
+                        </dd>
+                    </dl>
+                </div>
+            </div>
+
+            <!-- TASK 1 Card -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-1-circle me-2"></i>Task 1
+                    </h5>
+                </div>
+                <div class="card-body">
+                    @if (!string.IsNullOrEmpty(Model.Task1Instructions))
+                    {
+                        <div class="mb-3">
+                            <h6 class="text-primary">
+                                <i class="bi bi-list-task me-2"></i>Ko'rsatmalar:
+                            </h6>
+                            <div class="border-start border-primary border-3 ps-3">
+                                <p class="mb-0">@Model.Task1Instructions</p>
+                            </div>
+                        </div>
+                    }
+
+                    @if (!string.IsNullOrEmpty(Model.Task1Description))
+                    {
+                        <div class="mb-3">
+                            <h6 class="text-primary">
+                                <i class="bi bi-card-text me-2"></i>Tavsif:
+                            </h6>
+                            <div class="border-start border-primary border-3 ps-3">
+                                <p class="mb-0">@Model.Task1Description</p>
+                            </div>
+                        </div>
+                    }
+
+                    @if (!string.IsNullOrEmpty(Model.Task1ImagePath))
+                    {
+                        <div class="mb-3">
+                            <h6 class="text-primary">
+                                <i class="bi bi-image me-2"></i>Rasm:
+                            </h6>
+                            <div class="text-center bg-light rounded p-3">
+                                <img src="@Model.Task1ImagePath" 
+                                     alt="Task 1 Image" 
+                                     class="img-fluid rounded shadow" 
+                                     style="max-width: 100%; max-height: 500px;" />
+                            </div>
+                            <p class="mt-2 mb-0">
+                                <small class="text-muted">
+                                    <i class="bi bi-file-earmark-image me-1"></i>@Model.Task1ImageName
+                                </small>
+                            </p>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="alert alert-secondary mb-0">
+                            <i class="bi bi-image me-2"></i>
+                            Task 1 uchun rasm yuklanmagan
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <!-- TASK 2 Card -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-2-circle me-2"></i>Task 2
+                    </h5>
+                </div>
+                <div class="card-body">
+                    @if (!string.IsNullOrEmpty(Model.Task2Instructions))
+                    {
+                        <div class="mb-3">
+                            <h6 class="text-success">
+                                <i class="bi bi-list-task me-2"></i>Ko'rsatmalar:
+                            </h6>
+                            <div class="border-start border-success border-3 ps-3">
+                                <p class="mb-0">@Model.Task2Instructions</p>
+                            </div>
+                        </div>
+                    }
+
+                    @if (!string.IsNullOrEmpty(Model.Task2Description))
+                    {
+                        <div class="mb-3">
+                            <h6 class="text-success">
+                                <i class="bi bi-card-text me-2"></i>Tavsif:
+                            </h6>
+                            <div class="border-start border-success border-3 ps-3">
+                                <p class="mb-0">@Model.Task2Description</p>
+                            </div>
+                        </div>
+                    }
+
+                    @if (!string.IsNullOrEmpty(Model.Task2ImagePath))
+                    {
+                        <div class="mb-3">
+                            <h6 class="text-success">
+                                <i class="bi bi-image me-2"></i>Rasm:
+                            </h6>
+                            <div class="text-center bg-light rounded p-3">
+                                <img src="@Model.Task2ImagePath" 
+                                     alt="Task 2 Image" 
+                                     class="img-fluid rounded shadow" 
+                                     style="max-width: 100%; max-height: 500px;" />
+                            </div>
+                            <p class="mt-2 mb-0">
+                                <small class="text-muted">
+                                    <i class="bi bi-file-earmark-image me-1"></i>@Model.Task2ImageName
+                                </small>
+                            </p>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="alert alert-secondary mb-0">
+                            <i class="bi bi-image me-2"></i>
+                            Task 2 uchun rasm yuklanmagan
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="d-flex gap-2 mb-4">
+                <a asp-action="Edit" asp-route-id="@Model.TaskId" class="btn btn-warning">
+                    <i class="bi bi-pencil me-1"></i>Tahrirlash
+                </a>
+                <a asp-action="Delete" asp-route-id="@Model.TaskId" class="btn btn-danger">
+                    <i class="bi bi-trash me-1"></i>O'chirish
+                </a>
+                <a asp-action="Index" class="btn btn-secondary">
+                    <i class="bi bi-list me-1"></i>Ro'yxatga qaytish
+                </a>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-lg-4">
+            <!-- Qisqacha Ma'lumot -->
+            <div class="card shadow-sm mb-3">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">
+                        <i class="bi bi-info-circle me-2"></i>Qisqacha Ma'lumot
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-unstyled mb-0">
+                        <li class="mb-3">
+                            <div class="d-flex align-items-start">
+                                <i class="bi bi-hash text-primary me-2 mt-1"></i>
+                                <div>
+                                    <small class="text-muted d-block">ID</small>
+                                    <strong>#@Model.TaskId</strong>
+                                </div>
+                            </div>
+                        </li>
+                        <li class="mb-3">
+                            <div class="d-flex align-items-start">
+                                <i class="bi bi-tag text-success me-2 mt-1"></i>
+                                <div>
+                                    <small class="text-muted d-block">Task Turi</small>
+                                    <strong>@Model.TaskType</strong>
+                                </div>
+                            </div>
+                        </li>
+                        <li class="mb-3">
+                            <div class="d-flex align-items-start">
+                                <i class="bi bi-calendar text-info me-2 mt-1"></i>
+                                <div>
+                                    <small class="text-muted d-block">Yaratilgan</small>
+                                    <strong>@Model.CreatedAt.ToString("dd.MM.yyyy")</strong>
+                                </div>
+                            </div>
+                        </li>
+                        @if (Model.TimeLimit.HasValue)
+                        {
+                            <li class="mb-3">
+                                <div class="d-flex align-items-start">
+                                    <i class="bi bi-clock text-warning me-2 mt-1"></i>
+                                    <div>
+                                        <small class="text-muted d-block">Vaqt cheklovi</small>
+                                        <strong>@Model.TimeLimit daqiqa</strong>
+                                    </div>
+                                </div>
+                            </li>
+                        }
+                        <li class="mb-0">
+                            <div class="d-flex align-items-start">
+                                <i class="bi bi-journal-text text-secondary me-2 mt-1"></i>
+                                <div>
+                                    <small class="text-muted d-block">Mock</small>
+                                    <strong>@(Model.Mocks?.Name ?? "N/A")</strong>
+                                </div>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Rasmlar Holati -->
+            <div class="card shadow-sm mb-3">
+                <div class="card-header bg-light">
+                    <h6 class="mb-0">
+                        <i class="bi bi-images me-2"></i>Rasmlar Holati
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="mb-2">
+                        <i class="bi bi-1-circle text-primary me-2"></i>
+                        <strong>Task 1:</strong>
+                        @if (!string.IsNullOrEmpty(Model.Task1ImagePath))
+                        {
+                            <span class="badge bg-success ms-1">
+                                <i class="bi bi-check-circle me-1"></i>Mavjud
+                            </span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-secondary ms-1">
+                                <i class="bi bi-x-circle me-1"></i>Yo'q
+                            </span>
+                        }
+                    </div>
+                    <div>
+                        <i class="bi bi-2-circle text-success me-2"></i>
+                        <strong>Task 2:</strong>
+                        @if (!string.IsNullOrEmpty(Model.Task2ImagePath))
+                        {
+                            <span class="badge bg-success ms-1">
+                                <i class="bi bi-check-circle me-1"></i>Mavjud
+                            </span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-secondary ms-1">
+                                <i class="bi bi-x-circle me-1"></i>Yo'q
+                            </span>
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <!-- Statistika -->
+            <div class="card shadow-sm">
+                <div class="card-header bg-light">
+                    <h6 class="mb-0">
+                        <i class="bi bi-bar-chart me-2"></i>Statistika
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-6 border-end">
+                            <h3 class="mb-0 text-primary">
+                                @(string.IsNullOrEmpty(Model.Task1ImagePath) ? 0 : 1)
+                            </h3>
+                            <small class="text-muted">Task 1 Rasm</small>
+                        </div>
+                        <div class="col-6">
+                            <h3 class="mb-0 text-success">
+                                @(string.IsNullOrEmpty(Model.Task2ImagePath) ? 0 : 1)
+                            </h3>
+                            <small class="text-muted">Task 2 Rasm</small>
+                        </div>
+                    </div>
+                    <hr />
+                    <div class="text-center">
+                        <h3 class="mb-0 text-info">
+                            @((string.IsNullOrEmpty(Model.Task1ImagePath) ? 0 : 1) + 
+                              (string.IsNullOrEmpty(Model.Task2ImagePath) ? 0 : 1))
+                        </h3>
+                        <small class="text-muted">Jami Rasmlar</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
